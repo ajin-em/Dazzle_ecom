@@ -55,8 +55,10 @@
                         <option value="Home" {% if address.address_type == 'Home' %}selected{% endif %}>Home</option>
                         <option value="Office" {% if address.address_type == 'Office' %}selected{% endif %}>Office</option>
                       </select>
-                      <label for="name">Name</label>
-                      <input type="text" name="name" id="name" class="form-control mb-2" required value="{{ address.first_name }}">
+                      <label for="first_name">First Name</label>
+                      <input type="text" name="first_name" id="first_name" class="form-control mb-2" required value="{{ address.first_name }}">
+                      <label for="last_name">Last Name</label>
+                      <input type="text" name="last_name" id="last_name" class="form-control mb-2" required value="{{ address.last_name }}">
                       <label for="gender">Gender</label>
                       <select name="gender" id="gender" class="form-select mb-2">
                         <option value="Mr" {% if address.gender == 'Mr' %}selected{% endif %}>Male</option>
@@ -73,13 +75,13 @@
                       <label for="addpincode">Pincode</label>
                       <input type="text" name="pincode" id="addpincode" class="form-control mb-2" onkeyup="fetchPincodeData(this,'updatepinhelp{{forloop.counter}}','updatepostoffice{{forloop.counter}}','updatedistrict{{forloop.counter}}','updatestate{{forloop.counter}}')" aria-describedby="updatepinhelp{{forloop.counter}}" required value="{{ address.pincode }}">
                       <div id="updatepinhelp{{forloop.counter}}" class="form-text text-danger"></div>
-                      <label for="postoffice">Post Office</label>
+                      <label for="updatepostoffice">Post Office</label>
                       <select class="form-select" name="post" id="updatepostoffice{{forloop.counter}}">
                         <option>{{ address.post }}</option>
                       </select>
-                      <label for="district">District</label>
+                      <label for="updatedistrict">District</label>
                       <input type="text" class="form-control mb-2" name="updatedistrict" id="updatedistrict{{forloop.counter}}" readonly value="{{ address.district }}">
-                      <label for="state">State</label>
+                      <label for="updatestate">State</label>
                       <input type="text" class="form-control mb-2" name="updatestate" id="updatestate{{forloop.counter}}" readonly value="{{ address.state }}">
                     </div>
                     <div class="modal-footer">
@@ -110,9 +112,9 @@
                           <option value="Office">Office</option>
                       </select>
                       
-                      <label for="name">First Name</label>
+                      <label for="first_name">First Name</label>
                       <input type="text" name="first_name" id="name" class="form-control mb-2" required>
-                      <label for="name">Last Name</label>
+                      <label for="last_name">Last Name</label>
                       <input type="text" name="last_name" id="name" class="form-control mb-2" required>
                       
                       <label for="gender">Gender</label>
