@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}DAZZLE |User Login{% endblock title %}
+{% block content %}
+
+
+
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-conten padding-y" style="min-height:84vh">
+
+<!-- ============================ COMPONENT LOGIN   ================================= -->
+	<div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
+      <div class="card-body">
+      <h4 class="card-title text-center mb-4">Login</h4>
+      <div class="messages">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="text-center  list-unstyled {{ message.tags }}"{% endif %}> <p class="text-danger"> {{ message }} </p> </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+      <form action="." method='post'>
+        {% csrf_token %}
+          <div class="form-group">
+			 <input type="email" class="form-control" name = 'email' placeholder="Email Address" >
+          </div> <!-- form-group// -->
+          <div class="form-group">
+			<input type="password" class="form-control" name = 'password' placeholder="Password" >
+          </div> <!-- form-group// -->
+          
+          {% comment %} <div class="form-group">
+          	<a href="#" class="float-right">Forgot password?</a>  {% endcomment %}
+           
+          </div> <!-- form-group form-check .// -->
+          <div class="form-group">
+              <button type="submit" class="btn btn-dark btn-block"> Login  </button>
+          </div> <!-- form-group// -->    
+      </form>
+      </div> <!-- card-body.// -->
+    </div> <!-- card .// -->
+
+     <p class="text-center mt-4">Don't have account? <a href="{% url "register" %}">Sign up</a></p>
+     <br><br>
+<!-- ============================ COMPONENT LOGIN  END.// ================================= -->
+
+
+</section>
+<!-- ========================= SECTION CONTENT END// ========================= -->
+
+{% endblock content %}
+

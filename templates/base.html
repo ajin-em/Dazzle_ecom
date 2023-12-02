@@ -1,0 +1,236 @@
+{% load static %}
+{% load sweetify %}
+{% sweetify %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="cache-control" content="max-age=604800" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<title>{% block title %}DAZZLE | Online Umbrella Shopping Platform{% endblock %}</title>
+<link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+
+<!-- jQuery -->
+<script src="{% static 'js/jquery-2.0.0.min.js' %}" type="text/javascript"></script>
+
+<!-- Bootstrap files -->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}" type="text/javascript"></script>
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+
+<!-- Font awesome 5 -->
+<link href="{% static 'fonts/fontawesome/css/all.min.css' %}" type="text/css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<!-- Custom style -->
+<link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css"/>
+<link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+
+<!-- Custom JavaScript -->
+<script src="{% static 'js/script.js' %}" type="text/javascript"></script>
+
+<style>
+    .thicker-underline {
+        border-bottom: 3px solid #ffffff78; 
+        display: inline;
+    }
+
+    .custom-color-input {
+        width: 30px;
+        height: 30px; 
+        border: 0 solid #ccc; 
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+
+
+    }
+
+    .list-group-item {
+        border: none; 
+        
+    }
+    .list-group-item.active {
+        background-color: transparent;
+        border-bottom: 4px solid green;
+        border-top: none; 
+        border-right: none; 
+        border-left: none;
+        outline: none;
+        box-shadow: none;
+        color: #000;
+        }
+
+    .far.fa-heart {
+    color: red;
+    }
+
+    .page-link {
+        color: black;
+        border: 1px solid #50C878;
+    }
+    
+    .page-link:hover {
+        color: green; 
+    }
+    
+    .page-link.active {
+        color: green; 
+        background-color: #AFE1AF;
+        border: 1px solid #228B22;
+    }
+    
+    .page-link.active:hover {
+        color: #C4E1C5; 
+        background-color: #2E8B57;
+    }
+
+    .dropdown-item {
+        transition: background-color 0.3s ease;
+      }
+      .dropdown-item:active {
+        background-color: #78BB7B;
+      }
+
+</style>
+
+</head>
+<body>
+
+<nav class="navbar p-md-0 navbar-expand-sm navbar-light border-bottom ">
+    <div class="container mt-2">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTop4" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTop4">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if user.is_authenticated %}
+                        <svg xmlns="http://www.w3.org/2000/svg" style="width: 25px;" fill="green" class="bi bi-person" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
+                        </svg>
+                        {% else %}
+                            Welcome Guest!
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu">
+                        {% if user.is_authenticated %}
+                            <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+                            <a class="dropdown-item" href="{% url 'logout' %}">Logout ({{ user }})</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'signin' %}">Login</a>
+                            <a class="dropdown-item" href="{% url 'register' %}">Register</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </ul>
+            <div>
+                <a href="{% url 'cart' %}" class="text-light position-relative me-3">
+                    <i class="fa fa-shopping-cart fa-lg " style="color:black;"></i>
+                    <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill badge-success badge-sm">{{ cart_count }}</span>
+                </a>                
+                <a href="{% url 'wish' %}" class="text-light position-relative">
+                    <i class="far fa-heart fa-lg"></i>
+                <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill badge-warning badge-sm">{{ wish_count }}</span>
+                </a>
+            </div>
+        </div> <!-- navbar-collapse .// -->
+    </div> <!-- container //  -->
+</nav>
+
+<section class="header-main border-bottom shadow ">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12 text-center"> 
+                <a href="{% url 'home' %}" class="brand-wrap">
+                    <img class="logo img-fluid" src="{% static 'images/logo.png' %}" alt="Logo">
+                </a> <!-- brand-wrap.// -->
+                <div class="col-12 text-center">
+                    <!--  categories -->
+                    <div class="row justify-content-center my-3">
+                        <div class="col-12 text-center">
+                            <div class="categories d-flex justify-content-center">
+                                <ul class="list-group list-group-horizontal" style="border: none;">
+                                    <li class="list-group-item  {% if request.GET.category == '1-fold' %} active {% endif %}"  onclick='category("1-fold")' style="cursor: pointer;">1 FOLD</li>
+                                    <li class="list-group-item {% if request.GET.category == '2-fold' %} active {% endif %}" onclick='category("2-fold")' style="cursor: pointer;">2 FOLD</li>
+                                    <li class="list-group-item {% if request.GET.category == '3-fold' %} active {% endif %}" onclick='category("3-fold")' style="cursor: pointer;">3 FOLD</li>
+                                    <li class="list-group-item {% if request.GET.category == '5-fold' %} active {% endif %}" onclick='category("5-fold")' style="cursor: pointer;">5 FOLD</li>
+                                    <li class="list-group-item {% if request.GET.category == 'kids' %} active {% endif %}" onclick='category("kids")' style="cursor: pointer;">KIDS</li>
+                                </ul>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- row.// -->
+    </div> <!-- container.// -->
+</section> <!-- header-main .// -->
+{% block content %}{% endblock %}
+
+<!-- ========================= FOOTER ========================= -->
+<!-- Remove the container if you want to extend the Footer to full width. -->
+<div class="container-fluid my-5">
+    <!-- Footer -->
+    <footer class="text-center text-lg-start text-white" style="background-color: #78BB7B">
+        <!-- Grid container -->
+        <div class="p-4 pb-0">
+            <!-- Section: Links -->
+            <section>
+                <!--Grid row-->
+                <div class="row">
+                    <div class="col-12 mx-auto mt-3">
+                        <h6 class="text-uppercase mb-4 font-weight-bold">Quick Links</h6>
+                        <ul class="list-inline">
+                            <a href="{% url 'home' %}" ><li class="list-inline-item text-light">Home</li></a>
+                            <a href=""><li class="list-inline-item text-light">Refund Policy</li></a>
+                            <a href=""><li class="list-inline-item text-light">Privacy Policy</li></a>
+                            <a href=""><li class="list-inline-item text-light">Terms of Service</li></a>
+                            <a href=""><li class="list-inline-item text-light">Shipping Policy</li></a>
+                            <a href=""><li class="list-inline-item text-light">Cancellation Policy</li></a>
+                        </ul>
+                    </div>
+                    <div>
+                        <a href=""><li class="list-inline-item text-light">Deliveries and Returns</li></a>
+                    </div>
+                </div>
+                <!--Grid row-->
+            </section>
+            <!-- Section: Links -->
+        </div> <!-- Grid container -->
+  
+        <!-- Copyright -->
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
+            © 2023 Copyright:
+            <a class="text-white" href="">Dazzle_Umbrella</a>
+        </div>
+        <!-- Copyright -->
+    </footer>
+    <!-- Footer -->
+</div> <!-- End of .container -->
+<!-- ========================= FOOTER END // ========================= -->
+<script>
+    function category(type) {
+        let baseUrl = window.location.origin + '/store';
+        let currentUrl = new URL(baseUrl);
+        let urlParams = new URLSearchParams(currentUrl.search);
+
+        
+        // Set the 'category' parameter in the URL
+        urlParams.set('category', type);
+        currentUrl.search = urlParams.toString();
+
+      
+
+        // Redirect to the new URL
+        window.location.href = currentUrl.toString();
+    }
+
+    // Call category function to test - replace 'testCategory' with an actual category
+    // category('testCategory');
+</script>
+
+
+</body>
+</html>

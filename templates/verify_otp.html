@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dazzle</title>
+      <link rel="icon" href="https://echotunes-s3.s3.ap-south-1.amazonaws.com/static/images/logo/echotunes_tittle.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="row vh-100">
+        <form class="col-10 col col-sm-8 col-md-6 col-lg-5 col-xl-4 m-auto border border-1 shadow p-3 p-sm-5" method="post" action=".">
+            {% csrf_token %}
+            <div class="mb-3 d-flex">
+                <img src="{% static 'images/logo.png' %}" class="img-fluid m-auto col-6 col-lg-4" alt="biglogo">
+            </div>
+            <h3 class="text-center pb-4">Verfy OTP</h3>
+
+            <div class="row justify-content-center mt-4 mx-1 mx-sm-4">
+                <div class="col p-1">
+                    <input type="text" class="form-control borderg" autofocus maxlength="1" id="1" name="otp1" onkeyup="move(event,'2','1')" required/>
+                </div>
+                <div class="col p-1">
+                    <input type="text" class="form-control borderg" maxlength="1" id="2" name="otp2" onkeyup="move(event,'3','1')" required/>
+                </div>
+                <div class="col p-1">
+                    <input type="text" class="form-control borderg" maxlength="1" id="3" name="otp3" onkeyup="move(event,'4','2')" required/>
+                </div>
+                <div class="col p-1">
+                    <input type="text" class="form-control borderg" maxlength="1" id="4" name="otp4" onkeyup="move(event,'5','3')" required/>
+                </div>
+                <div class="col p-1">
+                    <input type="text" class="form-control borderg" maxlength="1" id="5" name="otp5" onkeyup="move(event,'6','4')" required/>
+                </div>
+                <div class="col p-1">
+                    <input type="text" class="form-control borderg" maxlength="1" id="6" name="otp6" onkeyup="move(event,'6','5')" required/>
+                </div>
+            </div>
+            <div class="text-center mt-4" id="countdown"></div>
+            <div class="d-flex justify-content-center pointer" id="resend"></div>
+            <div class="my-3 my-sm-4">
+                <button type="submit" class="btn btn-success w-100 colorg border-0">Confirm OTP</button>
+            </div>
+             <div class="mt-2 mt-sm-4 d-flex justify-content-center">
+                <small class="d-flex"><span class="d-none d-sm-block">Don't get otp? &nbsp;</span><a href="{% url 'resend' %}" class="textg fw-bold">Resend otp</a></small>
+             </div> 
+            <div class="d-flex justify-content-center">
+                <small class="d-flex"><span class="d-none d-sm-block">Back to Sign up? &nbsp;</span><a href="{% url 'register' %}" class="textg fw-bold">Sign in here</a></small>
+            </div>
+        </form>
+    </div>
+    {% comment %} <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> {% endcomment %}
+  {% for message in messages %}
+    <script>
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'bottom',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+      })
+      Toast.fire({ icon:'{{ message.tags }}', title:'{{ message }}'})
+
+
+      function move(event, nextid, previd) {
+        const nextInput = document.getElementById(nextid);
+        const prevInput = document.getElementById(previd);
+        if (event.key === 'Backspace') {
+          prevInput.focus();
+        } else {
+          nextInput.focus();
+        }
+      }
+    </script>
+  {% endfor %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html> 

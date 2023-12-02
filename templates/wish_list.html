@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}DAZZLE | Home{% endblock %}
+{% block content %}
+{% load static %}
+
+<div class="container">
+    {% if wish_items %}
+    <div class=" mt-4 d-flex justify-content-end ">
+    <a href="{% url 'clear_wish' %}" class="btn btn-outline-danger btn-sm  ">Clear all</a> 
+    </div>
+    <div class="row  mt-5">
+        {% for wish_item in wish_items %}
+        <div class="col-md-3 col-12  mb-4">
+        <div class="card shadow" style="max-width: 15rem; position: relative;">
+            <div class="card-body">
+                <h5 class="card-title mt-4" style="font-size: 1.2rem;">
+                    {{ wish_item.product_variant.product.name }}
+                </h5>
+                <a href="{% url 'product_detail' pslug=wish_item.product_variant.product.slug vslug=wish_item.product_variant.slug  %}">
+                    <img src="{{ wish_item.product_variant.cover_image.url }}" class="card-img-top img-fluid p-3"
+                        alt="{{ wish_item.product_variant.product.name }}" style="max-height: 10rem;">
+                </a>
+                <p class="card-text" style="font-size: 0.9rem;">Color: {{ wish_item.product_variant.color_name }}</p>
+                <p class="card-text pb-3" style="font-size: 0.9rem; display: flex;">
+                    ₹ {{ wish_item.product_variant.selling_price }}
+                    <small class="ps-1  text-decoration-line-through">MRP: ${{ wish_item.product_variant.actual_price}}</small>
+                </p>
+                <!-- Add more details you want to display -->
+                <h5>
+                <a href="{% url 'remove_from_wish' pslug=wish_item.product_variant.product.slug vslug=wish_item.product_variant.slug %}"
+                    style="position: absolute; top: 15px; right: 20px;">
+                    <i class="fa fa-heart" aria-hidden="true" style="color: red;"></i>
+                </a>
+                </h5>
+                <a href="{% url 'add_to_cart' pslug=wish_item.product_variant.product.slug vslug=wish_item.product_variant.slug %}"
+                    class="btn btn-outline-success btn-sm" style="position: absolute; bottom: 15px; right: 20px;">
+                    Add to Cart
+                </a>
+            </div>
+        </div>
+    </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="content">
+        <p class="display-6 my-5 text-center">Your wishlist is empty!</p>
+        <!-- You can add additional content or links here for an empty cart -->
+      </div>
+    {% endif %}
+</div>
+
+{% endblock %}

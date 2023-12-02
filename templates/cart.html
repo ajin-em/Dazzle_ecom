@@ -1,0 +1,169 @@
+<!-- cart.html -->
+{% extends "base.html" %}
+{% block title %}DAZZLE | Your Cart{% endblock %}
+
+{% block content %}
+<style>
+  
+  #addressAlertModal .modal-header,
+  #addressAlertModal .modal-content,
+  #addressAlertModal .modal-body {
+      border: none; 
+  }
+  
+  #addressAlertModal .modal-content,
+  #addressAlertModal .modal-body {
+      box-shadow: none; 
+  }
+</style>
+
+<div class="container">
+  {% if cart_items %}
+  <div class="row ">
+    <div class="content">
+      <div class="row">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="table-responsive">
+                 
+              <table class="table">
+                <thead>
+                  <tr class="">
+                    <th>Product</th>
+                    <th>Description</th>
+                    <th >Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in cart_items %}
+                  
+                  <tr>
+                    <td><a href="{% url 'product_detail' pslug=item.product_variant.product.slug vslug=item.product_variant.slug %}"><img src="{{ item.product_variant.cover_image.url }}" style="max-width: 200px; max-height: 200px;"
+                        class="w-100 p-3 img-fluid"></a>
+                       
+                        
+                      </td>
+                    <td>
+                      <div class="my-5">
+                      <strong>{{ item.product_variant.product.name }}</strong>
+                      <p>color: {{ item.product_variant.color_name }}</p>
+                    </div>
+                    </td>
+                    <td>
+                      <div class="row my-5">
+                      <div class="col-lg-4 col-md-6 ">
+                        <div class=" d-flex justify-content-evenly align-items-center gap-2">
+                          <a href="{% url 'decrease' id=item.id %}" role="button" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-minus px-1"></i>
+                          </a>
+                          <div class="form-outline border rounded-3 px-3 py-1 ">
+                            {{ item.count }}
+                          </div>
+                          <a href="{% url 'increase' id=item.id %}" role="button" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus px-1"></i>
+                          </a>
+                          <a href="{% url 'remove_from_cart' pslug=item.product_variant.product.slug vslug=item.product_variant.slug %}"
+                            role="button" type="button" class="btn btn-outline-danger btn-sm" data-mdb-toggle="tooltip"
+                            title="Remove item">
+                            <i class="fas fa-trash px-1"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    </td>
+                    <td>
+                      <div class="mt-5">₹ {{ item.product_variant.selling_price }}</div>
+                      <div class="text-decoration-line-through"><small> MRP ₹ {{ item.product_variant.actual_price }}</small></div>
+                    </td>
+                    <td>
+                      <div class="mt-5">₹ {{item.total_selling_price}} </div>
+                      <div class="text-decoration-line-through"><small>MRP ₹ {{item.total_actual_price}}</small> </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  <tr>
+                    <td colspan="4" class="text-right">Product Total</td>
+                    <td>₹ {{cart.total_actual_price}}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" class="text-right">Discount</td>
+                    <td>₹ {{cart.discount_price}}</td>
+                  </tr> 
+                  <tr>
+                    <td colspan="4" class="text-right"><strong>Total Price</strong></td>
+                    <td>₹ {{cart.total_selling_price}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel-footer d-flex">
+            <a href="{% url 'checkout' %}"  id="checkout-btn" class="btn btn-outline-dark pull-right ms-auto">Checkout<span
+                class="glyphicon glyphicon-chevron-right"></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="row">
+    <div class="content text-center">
+      <p class="display-6 my-5">Your cart is empty!</p>
+      <a href="{% url 'store' %}" role="button" class="btn btn-tertiary">
+        Continue Shopping
+      </a>
+    </div>
+  </div>
+{% endif %}
+</div>
+
+<div class="modal fade" id="addressAlertModal" tabindex="-1" role="dialog" aria-labelledby="addressAlertModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <figure class="text-center">
+              <blockquote class="blockquote">
+                <div class="text-center">
+                  <svg width="3em" height="3em" viewBox="0 0 16 16" class="m-1 bi bi-exclamation-circle-fill" fill="red" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                </svg>
+                </div>
+                <p class="text-danger h4">Please add at least one <mark>address</mark> to proceed with checkout.	&#129300;</p>
+              </blockquote>
+              <figcaption class="blockquote-footer">
+                <cite title="Source Title">Team Dazzle Umbrella</cite>
+              </figcaption>
+            </figure>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const checkoutBtn = document.getElementById('checkout-btn');
+
+      checkoutBtn.addEventListener('click', function (event) {
+          event.preventDefault();
+
+          const hasAddress = '{{ has_address }}';
+
+          if (hasAddress === 'False') {
+              // Show Bootstrap modal alert
+              $('#addressAlertModal').modal('show');
+          } else {
+              window.location.href = checkoutBtn.href;
+          }
+      });
+  });
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock %}

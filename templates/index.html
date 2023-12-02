@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}DAZZLE | Home{% endblock %}
+{% block content %}
+{% load static %}
+<!-- ========================= SECTION MAIN ========================= -->
+
+<section class="section-intro padding-y-sm ">
+<div class="container-fluid ">
+
+	
+	<div class="banner-section">
+        {% for banner in banners %}
+            <div class="banner-item">
+            <img src="{{ banner.image.url }}" alt="banner" class="banner-image" style="max-width: 100%; height: auto;">
+            </div>
+        {% endfor %}
+    </div>
+
+
+</div> <!-- container //  -->
+</section>
+<!-- ========================= SECTION MAIN END// ========================= -->
+
+<!-- ========================= SECTION  ========================= -->
+<section class="section-name padding-y-sm ">
+<div class="container">
+
+<header class="section-heading">
+	
+	<h5 class="section-title">Featured products</h5>
+</header><!-- sect-heading -->
+
+<div class="container ">
+    <div class="row">
+        {% for product in products %}
+        {% comment %} {{ product.pro}} {% endcomment %}
+        
+        <div class="col-6 col-md-3">
+           
+            <div class="card mb-3 shadow " style="max-width: 250px; position: relative;">
+
+                <a href="{% url 'product_detail' pslug=product.slug vslug=product.variants.first.slug %}">
+                    
+                    {% if product.variants.first.cover_image %}
+                    
+                    <img src="{{ product.variants.first.cover_image.url }}" class="img-fluid p-3" alt="Image" style="min-width: 250px;">
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <h6 class="card-text">
+                        {% if product.variants.first.actual_price == product.variants.first.selling_price %}
+                            <strong style="font-size: 14px;">
+                                ₹
+                                {{ product.variants.first.selling_price }}
+                            </strong>
+                        {% else %}
+                            <strong style="font-size: 14px;">
+                                ₹
+                                {{ product.variants.first.selling_price }}
+                            </strong>
+                            <strong class="text-decoration-line-through" style="font-size: 10px;">
+                                MRP : ₹
+                                <span>{{ product.variants.first.actual_price }}</span>
+                            </strong>
+                        {% endif %}
+                        </h6>
+                </div>
+                
+                    {% if variant in wishlist_items %}
+                        <span class="wishlist-icon">
+                            <h4><a href="{% url 'remove_from_wish' pslug=product.slug vslug=product.variants.first.slug %}" class="text-light"><i class="fa fa-heart" aria-hidden="true" style="color: red; position: absolute; bottom: 60px; right: 30px;"></i></a></h4>
+                        </span>
+                    {% else %}
+                        <span class="wishlist-icon">
+                            <h4><a href="{% url 'add_to_wish' pslug=product.slug vslug=product.variants.first.slug %}" class="text-light"><i class="far fa-heart" style="position: absolute; bottom: 60px; right: 30px;"></i></a></h4>
+                        </span>
+                    {% endif %}
+                
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+	
+<div class="d-flex justify-content-center">
+    <a href=" {% url 'store' %}" class="btn btn-outline-dark " style="width: 100px"; >View all</a>
+  </div>
+  
+
+	
+
+</div> <!-- row.// -->
+
+</div><!-- container // -->
+</section>
+<!-- ========================= SECTION  END// ========================= -->
+
+{% endblock %}
+

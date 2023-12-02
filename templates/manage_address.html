@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}DAZZLE | Address management{% endblock %}
+{% block content %}
+{% load static %}
+
+<div class=" container">
+    <div class="row">
+        <div class="col-3">
+
+            <div class="d-grid gap-2 m-5 ">
+                <a class="btn border rounded-0  btn-outline-dark shadow  " href="{% url 'profile' %}" role="button">Profile</a>
+                <a class="btn border rounded-0 btn-outline-dark active shadow " href="{% url 'manage_address' %}" role="button">Manage Addresses</a>
+                <a class="btn border rounded-0 btn-outline-dark shadow " href="" role="button">My Orders</a>
+            </div>
+
+        </div>
+        <div class="col-9">
+        <div class="d-flex justify-content-end my-1 ">
+            <button class="btn btn-outline-dark btn-sm mt-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#add_address" type="button">Add Address</button>
+          </div>
+          {% for address in addresses %}
+            <div class="border rounded-2 px-4 py-2 my-2 shadow ">
+              <div class="d-flex justify-content-between">
+                <div class="text-dark badge badge-pill badge-success ">
+                    <span><small>{% if address.address_type == 'Home' %} <i class="bi bi-house"></i>{% elif address.address_type == 'Office' %} <i class="bi bi-buildings"></i>{% endif %} {{ address.address_type }}</small></span>
+                </div>
+                <div class="dropdown">
+                  <a data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots-vertical"></i></a>
+                  <ul class="dropdown-menu">
+                    <li class="dropdown-item text-primary" data-bs-toggle="modal" data-bs-target="#update_address{{forloop.counter}}"><i class="bi bi-pencil-square"></i> Edit</li>
+                    <li>
+                      <a class="dropdown-item text-danger" href="{% url 'delete_address' pk=address.id %}"><i class="bi bi-trash"></i> Delete</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div>{{ address.gender }}. {{ address.first_name }} {{ address.last_name }} <br> {{ address.mobile }}</div>
+              <div>{{ address.address }}</div>
+              <div>{{ address.place }} - {{ address.pincode }}</div>
+            </div>
+          
+          
+            <div class="modal fade" id="update_address{{forloop.counter}}" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <form action="{% url 'update_address' pk=address.id %}" method="post">
+                      {% csrf_token %}
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Address</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">              
+                      <label for="address_type">Address Type</label>
+                      <select name="address_type" id="address_type" class="form-select mb-2">
+                        <option value="Home" {% if address.address_type == 'Home' %}selected{% endif %}>Home</option>
+                        <option value="Office" {% if address.address_type == 'Office' %}selected{% endif %}>Office</option>
+                      </select>
+                      <label for="name">Name</label>
+                      <input type="text" name="name" id="name" class="form-control mb-2" required value="{{ address.first_name }}">
+                      <label for="gender">Gender</label>
+                      <select name="gender" id="gender" class="form-select mb-2">
+                        <option value="Mr" {% if address.gender == 'Mr' %}selected{% endif %}>Male</option>
+                        <option value="Mrs" {% if address.gender == 'Mrs' %}selected{% endif %}>Female</option>
+                      </select>
+                      <label for="mobile">Mobile</label>
+                      <input type="text" name="mobile" id="mobile" class="form-control mb-2" required value="{{ address.mobile }}">
+                      <label for="address">Address</label>
+                      <textarea name="address" id="address" class="form-control mb-2" rows="3">{{ address.address }}</textarea>
+                      <label for="place">Place</label>
+                      <input type="text" name="place" id="place" class="form-control mb-2" required value="{{ address.place }}">
+                      <label for="landmark">Land Mark</label>
+                      <input type="text" name="landmark" id="landmark" class="form-control mb-2" required value="{{ address.landmark }}">
+                      <label for="addpincode">Pincode</label>
+                      <input type="text" name="pincode" id="addpincode" class="form-control mb-2" onkeyup="fetchPincodeData(this,'updatepinhelp{{forloop.counter}}','updatepostoffice{{forloop.counter}}','updatedistrict{{forloop.counter}}','updatestate{{forloop.counter}}')" aria-describedby="updatepinhelp{{forloop.counter}}" required value="{{ address.pincode }}">
+                      <div id="updatepinhelp{{forloop.counter}}" class="form-text text-danger"></div>
+                      <label for="postoffice">Post Office</label>
+                      <select class="form-select" name="post" id="updatepostoffice{{forloop.counter}}">
+                        <option>{{ address.post }}</option>
+                      </select>
+                      <label for="district">District</label>
+                      <input type="text" class="form-control mb-2" name="updatedistrict" id="updatedistrict{{forloop.counter}}" readonly value="{{ address.district }}">
+                      <label for="state">State</label>
+                      <input type="text" class="form-control mb-2" name="updatestate" id="updatestate{{forloop.counter}}" readonly value="{{ address.state }}">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <input type="submit" class="btn" value="Save">
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          
+          
+          <div class="modal fade" id="add_address" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <form action="{% url 'add_address' %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Add Address</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        
+                      <label for="address_type">Address Type</label>
+                      <select name="address_type" id="address_type" class="form-select mb-2">
+                          <option value="Home" selected>Home</option>
+                          <option value="Office">Office</option>
+                      </select>
+                      
+                      <label for="name">First Name</label>
+                      <input type="text" name="first_name" id="name" class="form-control mb-2" required>
+                      <label for="name">Last Name</label>
+                      <input type="text" name="last_name" id="name" class="form-control mb-2" required>
+                      
+                      <label for="gender">Gender</label>
+                      <select name="gender" id="gender" class="form-select mb-2">
+                          <option value="Mr" selected>Male</option>
+                          <option value="Mrs">Female</option>
+                      </select>
+                      
+                      <label for="mobile">Mobile</label>
+                      <input type="text" name="mobile" id="mobile" class="form-control mb-2" required>
+          
+          
+                      <label for="email">Email</label>
+                      <input type="email" name="email" id="email" class="form-control mb-2" required>
+                      
+                      <label for="address">Address</label>
+                      <textarea name="address" id="address" class="form-control mb-2" rows="3"></textarea>
+                      
+                      <label for="place">Place</label>
+                      <input type="text" name="place" id="place" class="form-control mb-2" required>
+                      
+                      <label for="landmark">Land Mark</label>
+                      <input type="text" name="landmark" id="landmark" class="form-control mb-2" required>
+          
+          
+                      <label for="addpincode">Pincode</label>
+                      <input type="text" name="pincode" id="addpincode" class="form-control mb-2" onkeyup="fetchPincodeData(this,'addpinhelp','addpostoffice','adddistrict','addstate')" aria-describedby="addpinhelp" required>
+                      <div id="addpinhelp" class="form-text text-danger"></div>
+          
+          
+                      <label for="postoffice">Post Office</label>
+                      <select class="form-select" name="post" id="addpostoffice"></select>
+          
+          
+                      <label for="district">District:</label>
+                      <input type="text" class="form-control mb-2" name="district" id="adddistrict" readonly>
+          
+          
+                      <label for="state">State:</label>
+                      <input type="text" class="form-control mb-2" name="state" id="addstate" readonly>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <input type="submit" class="btn btn-primary" value="Save">
+                    </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+    </div>
+          <script>
+          function fetchPincodeData(pincodeInput, helptext, postoffice, district, state) {
+            const dropdown = document.getElementById(postoffice);
+            const pincode = pincodeInput.value;
+            dropdown.innerHTML = '';
+            if (pincode.length !== 6) {
+              document.getElementById(helptext).textContent = 'PIN code must be 6 characters long.';
+              pincodeInput.classList.add('is-invalid');
+              pincodeInput.classList.remove('is-valid');
+              return;
+            } 
+            else {
+              document.getElementById(helptext).textContent = '';
+              pincodeInput.classList.remove('is-invalid');
+              pincodeInput.classList.add('is-valid');
+            }
+            const apiUrl = `https://api.postalpincode.in/pincode/${pincode}`;
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+              if (data && data[0] && data[0].Status === 'Success') {
+                  const postofficeData = data[0].PostOffice.map(item => item.Name);
+                  postofficeData.forEach(name => {
+                  const option = document.createElement('option');
+                  option.value = name; 
+                  option.text = name;
+                  dropdown.appendChild(option);
+                });
+                document.getElementById(district).value = data[0].PostOffice[0].District;
+                document.getElementById(state).value = data[0].PostOffice[0].State;
+              } else {
+                document.getElementById(helptext).textContent = 'Invalid PIN Code';
+                pincodeInput.classList.add('is-invalid');
+              }
+            })
+            .catch(error => {0.
+              document.getElementById(helptext).textContent = 'An error occurred while fetching data.';
+            }); 
+          }
+      
+    function fetchPincodeData(pincodeInput, helptext, postoffice, district, state) {
+        const dropdown = document.getElementById(postoffice);
+        const pincode = pincodeInput.value;
+        dropdown.innerHTML = '';
+        if (pincode.length !== 6) {
+            document.getElementById(helptext).textContent = 'PIN code must be 6 characters long.';
+            pincodeInput.classList.add('is-invalid');
+            pincodeInput.classList.remove('is-valid');
+            return;
+        }
+        else {
+            document.getElementById(helptext).textContent = '';
+            pincodeInput.classList.remove('is-invalid');
+            pincodeInput.classList.add('is-valid');
+        }
+        const apiUrl = `https://api.postalpincode.in/pincode/${pincode}`;
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data[0] && data[0].Status === 'Success') {
+                    const postofficeData = data[0].PostOffice.map(item => item.Name);
+                    postofficeData.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.text = name;
+                        dropdown.appendChild(option);
+                    });
+                    document.getElementById(district).value = data[0].PostOffice[0].District;
+                    document.getElementById(state).value = data[0].PostOffice[0].State;
+                } else {
+                    document.getElementById(helptext).textContent = 'Invalid PIN Code';
+                    pincodeInput.classList.add('is-invalid');
+                }
+            })
+            .catch(error => {
+                document.getElementById(helptext).textContent = 'An error occurred while fetching data.';
+            });
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous">
+</script>
+
+{% endblock %}
