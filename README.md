@@ -33,6 +33,8 @@
       <br>
       <pre><code>cd Dazzle_ecom</code></pre>
       <br>
+  </ol>
+  <ol>
       <strong>Setup Virtual Environment (Recommended):</strong>
       <br>
       # Create a virtual environment (optional but recommended)
