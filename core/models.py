@@ -44,20 +44,41 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class UserAddress(models.Model):
-  id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
-  user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_addresses')
-  first_name = models.CharField(max_length=100)
-  last_name = models.CharField(max_length=100)
-  gender = models.CharField(max_length=10, choices=[('Mr', 'male'),('Mrs', 'female')])
-  mobile = models.CharField(max_length=11)
-  email = models.EmailField()
-  address_type = models.CharField(max_length=20, choices=[('home','home'),('work','work')]) 
-  place = models.CharField(max_length=100) 
-  address = models.CharField(max_length=250)
-  landmark = models.CharField(max_length=200)
-  pincode =  models.CharField(max_length=6)
-  post = models.CharField(max_length=50)
-  district = models.CharField(max_length=50)
-  state = models.CharField(max_length=50)
+    """
+    Represents a user's address information.
+
+    Attributes:
+    - id (UUIDField): Identifier for the address.
+    - user (ForeignKey to CustomUser): User associated with this address.
+    - first_name (CharField): First name of the user.
+    - last_name (CharField): Last name of the user.
+    - gender (CharField): Gender of the user (choices: 'Mr', 'Mrs').
+    - mobile (CharField): User's mobile number.
+    - email (EmailField): User's email address.
+    - address_type (CharField): Type of address (choices: 'home', 'work').
+    - place (CharField): Specific place or locality.
+    - address (CharField): User's full address.
+    - landmark (CharField): Landmark near the address.
+    - pincode (CharField): Pincode of the address.
+    - post (CharField): Post associated with the address.
+    - district (CharField): District of the address.
+    - state (CharField): State of the address.
+    """
+    
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_addresses')
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    gender = models.CharField(max_length=10, choices=[('Mr', 'male'),('Mrs', 'female')])
+    mobile = models.CharField(max_length=11)
+    email = models.EmailField()
+    address_type = models.CharField(max_length=20, choices=[('home','home'),('work','work')]) 
+    place = models.CharField(max_length=100) 
+    address = models.CharField(max_length=250)
+    landmark = models.CharField(max_length=200)
+    pincode =  models.CharField(max_length=6)
+    post = models.CharField(max_length=50)
+    district = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
 
   

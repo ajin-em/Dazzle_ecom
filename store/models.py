@@ -50,6 +50,28 @@ class Product(models.Model):
 
 
 class Product_Variant(models.Model):
+    """
+    Represents a variant of a product with specific attributes like color, price, and stock.
+
+    Attributes:
+    - id (UUIDField): Primary key identifying the variant.
+    - color_name (CharField): Name of the color for the variant (optional).
+    - color (ColorField): Color representation (optional).
+    - actual_price (PositiveIntegerField): The actual price of the variant.
+    - selling_price (PositiveIntegerField): The selling price of the variant.
+    - stock (PositiveIntegerField): The stock quantity of the variant.
+    - product (ForeignKey to Product): The associated product for the variant.
+    - slug (SlugField): Slug representation of the color name (auto-generated).
+    - cover_image (ImageField): Main image representing the variant.
+
+    Methods:
+    - save(): Overrides the save method to auto-generate the slug based on the color name.
+    - delete(): Overrides the delete method to delete associated images before deletion.
+    - __str__(): Returns a string representation of the variant.
+
+    Relationships:
+    - Each variant belongs to a single product and can have multiple images.
+    """
     id = models.UUIDField(primary_key=True,editable=False,default=uuid.uuid4)
     color_name = models.CharField(max_length=100,null=True,blank=True)
     color = ColorField(null=True,blank=True)
@@ -74,8 +96,19 @@ class Product_Variant(models.Model):
 
 class ProductImage(models.Model):
     """
-    The ProductImage model represents an image associated with a product. 
-    Each image is identified by a unique UUID and is associated with a product.
+    Represents an image associated with a product variant.
+
+    Attributes:
+    - id (UUIDField): Primary key identifying the image.
+    - extra_images (ImageField): Additional image for the variant (optional).
+    - product_variant (ForeignKey to Product_Variant): The associated product variant.
+
+    Methods:
+    - delete(): Overrides the delete method to delete the image file before deletion.
+    - __str__(): Returns a string representation of the image.
+
+    Relationships:
+    - Each image is associated with a single product variant.
     """
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     extra_images = models.ImageField(upload_to="variant_extra_images", null=True, blank=True)
@@ -169,6 +202,18 @@ class CartItem(models.Model):
         super().save(*args, **kwargs)
 
 class Coupon(models.Model):
+    """
+    Represents a coupon that can be applied to purchases.
+
+    Attributes:
+    - id (UUIDField): Identifier for the coupon.
+    - coupon_code (CharField): Code for the coupon (optional).
+    - description (CharField): Description of the coupon (optional).
+    - discount_amount (PositiveIntegerField): Amount of discount offered by the coupon.
+    - is_active (BooleanField): Indicates if the coupon is active or not.
+    - updated_at (DateTimeField): Date and time when the coupon was last updated.
+    - minimum_amount (PositiveIntegerField): Minimum purchase amount required for the coupon to be valid.
+    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     coupon_code = models.CharField(max_length=200, null=True, blank=True)
     description = models.CharField(max_length=200, null=True, blank=True)
@@ -179,6 +224,20 @@ class Coupon(models.Model):
 
 
 class Checkout(models.Model):
+    """
+    Represents a checkout process for a user's purchase.
+
+    Attributes:
+    - id (UUIDField): Identifier for the checkout.
+    - address (ForeignKey to UserAddress): User's address for the checkout.
+    - cart (ForeignKey to Cart): User's cart associated with the checkout.
+    - coupon_price (IntegerField): Price after applying any associated coupon (default: 0).
+    - final_price (IntegerField): Final price after checkout (default: 0).
+    - payment_method (CharField): Chosen payment method for the checkout.
+
+    Relationships:
+    - Each checkout is associated with a user's address, cart, and optionally a coupon.
+    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     address = models.ForeignKey(UserAddress, on_delete=models.CASCADE, related_name='checkout')
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='checkout')
@@ -188,6 +247,19 @@ class Checkout(models.Model):
 
 
 class Orders(models.Model):
+    """
+    Represents an order made by a user.
+
+    Attributes:
+    - id (UUIDField): Identifier for the order.
+    - user (OneToOneField to CustomUser): User who placed the order.
+    - checkout (ForeignKey to Checkout): Checkout details associated with the order.
+    - created_at (DateTimeField): Date and time when the order was created.
+    - updated_at (DateTimeField): Date and time when the order was last updated.
+
+    Relationships:
+    - Each order is associated with a user, a checkout, and has a creation and update time.
+    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='orders')
     checkout= models.ForeignKey(Checkout, on_delete=models.CASCADE, related_name='orders') 
@@ -196,11 +268,33 @@ class Orders(models.Model):
 
 
 class WishList(models.Model):
+    """
+    Represents a wishlist for a user.
+
+    Attributes:
+    - id (UUIDField): Identifier for the wishlist.
+    - user (OneToOneField to CustomUser): User who owns the wishlist.
+    - updated_at (DateTimeField): Date and time when the wishlist was last updated.
+
+    Relationships:
+    - Each wishlist is associated with a single user and has an update time.
+    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='wish')
     updated_at = models.DateTimeField(auto_now=True)
 
 class WishItem(models.Model):
+    """
+    Represents an item in a user's wishlist.
+
+    Attributes:
+    - id (UUIDField): Identifier for the wish item.
+    - wish (ForeignKey to WishList): Wishlist the item belongs to.
+    - product_variant (ForeignKey to Product_Variant): Product variant added to the wishlist.
+
+    Relationships:
+    - Each wish item is associated with a wishlist and a specific product variant.
+    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     wish = models.ForeignKey(WishList, on_delete=models.CASCADE, related_name='wish_items')
     product_variant = models.ForeignKey(Product_Variant, on_delete=models.CASCADE, related_name='wish_items')

@@ -12,6 +12,7 @@ import redis
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from .context_processors import *
 
 class Home(View):
     """
@@ -33,8 +34,12 @@ class Home(View):
     
         products = Product.objects.all().select_related('category')
         banners = Banner.objects.all()
-        # Render the 'index.html' template with product and banner data
-        return render(request, 'index.html', {'products': products, 'banners': banners})
+        context = {
+        'products': products,
+        'banners': banners,
+        
+        }
+        return render(request, 'index.html', context)
 
 class ProductListing(View):
     """
@@ -63,19 +68,69 @@ class ProductListing(View):
         
         paginator = Paginator(products, 2)
         page = paginator.page(page)
+        context = {
+        'products': products,
+        'page': page,
+    }
 
-        return render(request, 'store.html', {'products': products, 'page': page})
+        return render(request, 'store.html', context)
         
 class ProductDetailView(View):
+    """
+    A view displaying the details of a specific product variant.
+
+    Attributes:
+        None
+
+    Methods:
+        get(request, pslug, vslug): Renders the product detail page based on the product's slug and variant's slug.
+    """
     def get(self, request, pslug, vslug):
+        """
+        Retrieves the product and its variant based on the provided slugs,
+        checks if the variant is in the wishlist, and renders the product detail page.
+
+        Args:
+            request: The HTTP request.
+            pslug: The slug of the product.
+            vslug: The slug of the product variant.
+
+        Returns:
+            Rendered product detail page with context data.
+        """
         product = get_object_or_404(Product, slug=pslug )
         variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
         is_in_wishlist = WishItem.objects.filter(product_variant=variant).exists()
+        context = {
+            'variant': variant,
+            'is_in_wishlist': is_in_wishlist,
+        }
 
-        return render(request, "product_detail.html", {'variant': variant , 'is_in_wishlist': is_in_wishlist})
+        return render(request, "product_detail.html", context)
 
 class CartView(LoginRequiredMixin, View):
+    """
+    A view displaying the user's cart and handling cart-related actions.
+
+    Attributes:
+        None
+
+    Methods:
+        get(request, *args, **kwargs): Renders the user's cart page with cart details.
+        post(request, *args, **kwargs): Handles POST requests related to the cart view.
+    """
     def get(self, request, *args, **kwargs):
+        """
+        Retrieves the user's cart details and renders the cart page.
+
+        Args:
+            request: The HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Rendered cart page with cart details.
+        """
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart.update_totals()
         cart_items = cart.cart_items.all().order_by('id').select_related('product_variant__product')  
@@ -85,11 +140,22 @@ class CartView(LoginRequiredMixin, View):
         context = {
             'cart': cart,
             'cart_items': cart_items,
-            'has_address': has_address
+            'has_address': has_address,
         }
         return render(request, 'cart.html', context)
     
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests related to the cart view.
+
+        Args:
+            request: The HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Redirects to the 'cart' URL.
+        """
         cart, created = Cart.objects.get_or_create(user=request.user)
         return redirect('cart')
 
@@ -99,11 +165,20 @@ class AddToCart(LoginRequiredMixin, View):
     """
 
     def get(self, request, pslug, vslug):
-        # print(pslug,vslug)
+        """
+        Handles the addition of items to the cart based on the product and variant slugs.
+
+        Args:
+            request: The HTTP request.
+            pslug: The slug of the product.
+            vslug: The slug of the product variant.
+
+        Returns:
+            Redirects to the previous page.
+        """
         product = get_object_or_404(Product, slug=pslug)
         variant = get_object_or_404(Product_Variant, product=product, slug=vslug)
         cart, created = Cart.objects.get_or_create(user=request.user)
-
         cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product_variant=variant)
         if not item_created:
             cart_item.count += 1
@@ -119,7 +194,17 @@ class RemoveFromCart(View):
     """
 
     def get(self, request, pslug, vslug):
-        # print(pslug,vslug)
+        """
+        Handles the removal of items from the cart based on the product and variant slugs.
+
+        Args:
+            request: The HTTP request.
+            pslug: The slug of the product.
+            vslug: The slug of the product variant.
+
+        Returns:
+            Redirects to the previous page after removing the item from the cart.
+        """
         product = get_object_or_404(Product, slug=pslug)
         variant = get_object_or_404(Product_Variant, product=product, slug=vslug)
         cart_item = get_object_or_404(CartItem, cart__user=request.user, product_variant=variant)
@@ -129,8 +214,24 @@ class RemoveFromCart(View):
         return redirect(request.META.get('HTTP_REFERER'))
 
 class Increase_Cart_item(View):
+    """
+    View for increasing the quantity of an item in the cart.
+
+    Methods:
+        get(request, id): Handles GET requests to increase the quantity of an item in the cart.
+    """
 
     def get(self, request, id):
+        """
+        Increases the quantity of a cart item based on its ID, restricting it to a maximum of 10 units.
+
+        Args:
+            request: The HTTP request.
+            id: The ID of the cart item to be incremented.
+
+        Returns:
+            Redirects to the previous page after updating the item's quantity.
+        """
         cart_item= get_object_or_404(CartItem, id=id)
         if cart_item.count < 10:
             cart_item.count += 1
@@ -139,7 +240,15 @@ class Increase_Cart_item(View):
 
 
 class Decrease_Cart_item(View):
+    """
+    View for decreasing the quantity of an item in the cart.
 
+    Attributes:
+        None
+
+    Methods:
+        get(request, id): Handles GET requests to decrease the quantity of an item in the cart.
+    """
     def get(self, request, id):
         cart_item= get_object_or_404(CartItem, id=id)
         if cart_item.count > 1:
@@ -148,7 +257,22 @@ class Decrease_Cart_item(View):
         return redirect(request.META.get('HTTP_REFERER'))
 
 class CheckoutView(LoginRequiredMixin, View):
+    """
+    View for managing the checkout process.
+
+    Methods:
+        get(request): Handles GET requests for the checkout process.
+    """
     def get(self, request):
+        """
+        Handles the checkout process by calculating the final price, applying coupons, and rendering the checkout page.
+
+        Args:
+            request: The HTTP request.
+
+        Returns:
+            Renders the checkout page with necessary context data for the checkout process.
+        """
         coupon_id = request.GET.get('coupon')
         coupon_discount = 0
         if coupon_id:
@@ -178,7 +302,7 @@ class CheckoutView(LoginRequiredMixin, View):
         checkout.final_price = final_price
         checkout.save()
         coupons = [coupon for coupon in coupons if coupon.minimum_amount <= final_price]        
-
+        
         context = {'checkout': checkout,
                     'cart': cart,
                     'user_addresses': user_addresses,
@@ -192,12 +316,27 @@ class CheckoutView(LoginRequiredMixin, View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ClearCouponView(View):
-    def get(self, request):
-        # Implement the logic to handle GET requests (if needed)
-        # This can be used for retrieving data or rendering a form
-        pass
+    """
+    View for clearing the coupon applied during checkout.
+
+    Attributes:
+        None
+
+    Methods:
+        get(request): Handles GET requests (if needed) for coupon clearing.
+        post(request): Handles POST requests for clearing the coupon.
+    """
 
     def post(self, request):
+        """
+        Handles POST requests for clearing the coupon applied during checkout.
+
+        Args:
+            request: The HTTP request.
+
+        Returns:
+            Redirects to the 'checkout' URL after attempting to clear the coupon.
+        """
         try:
             # Assuming you're retrieving the checkout instance for the current user
             checkout = Checkout.objects.get(user=request.user)
@@ -211,9 +350,25 @@ class ClearCouponView(View):
         return redirect('checkout') 
 
 class WhishList(LoginRequiredMixin, View):
+    """
+    View for displaying the user's wishlist.
+
+    Methods:
+        get(request, *args, **kwargs): Handles GET requests to display the wishlist.
+    """
     
     def get(self, request, *args, **kwargs):
-        # Retrieve the wishlist associated with the user
+        """
+        Retrieves and displays the user's wishlist with associated wish items.
+
+        Args:
+            request: The HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Renders the wishlist page with wish items and wishlist details.
+        """
         wish, created = WishList.objects.get_or_create(user=request.user)
         wish_items = wish.wish_items.all().select_related('product_variant__product')  
         wish_items_count = wish_items.count()  
@@ -221,7 +376,6 @@ class WhishList(LoginRequiredMixin, View):
         context = {
             'wish': wish,
             'wish_items': wish_items,
-              
         }
         return render(request, 'wish_list.html', context)
 
@@ -231,6 +385,17 @@ class AddToWishList(LoginRequiredMixin, View):
     """
 
     def get(self, request, pslug, vslug):
+        """
+        Handles the addition or removal of items from the wishlist based on product and variant slugs.
+
+        Args:
+            request: The HTTP request.
+            pslug: The slug of the product.
+            vslug: The slug of the product variant.
+
+        Returns:
+            Redirects to the previous page after modifying the wishlist.
+        """
         product = get_object_or_404(Product, slug=pslug)
         variant = get_object_or_404(Product_Variant, product=product, slug=vslug)
         wish, created = WishList.objects.get_or_create(user=request.user)
@@ -247,7 +412,6 @@ class AddToWishList(LoginRequiredMixin, View):
             wish_item = WishItem.objects.create(wish=wish, product_variant=variant)
             wish_item.save()
 
-        # Redirect to the previous page
         return redirect(request.META.get('HTTP_REFERER'))
 
 class RemoveFromWishList(View):
@@ -256,6 +420,17 @@ class RemoveFromWishList(View):
     """
 
     def get(self, request, pslug, vslug):
+        """
+        Handles the removal of items from the wishlist based on product and variant slugs.
+
+        Args:
+            request: The HTTP request.
+            pslug: The slug of the product.
+            vslug: The slug of the product variant.
+
+        Returns:
+            Redirects to the previous page after removing the item from the wishlist.
+        """
         product = get_object_or_404(Product, slug=pslug)
         variant = get_object_or_404(Product_Variant, product=product, slug=vslug)
         
@@ -268,7 +443,19 @@ class RemoveFromWishList(View):
         return redirect(request.META.get('HTTP_REFERER'))
 
 class ClearWishList(View):
+    """
+    View for clearing all items in the wishlist.
+    """
     def get(self, request):
+        """
+        Handles the removal of all items from the wishlist associated with the user.
+
+        Args:
+            request: The HTTP request.
+
+        Returns:
+            Redirects to the 'wish' URL after clearing the wishlist.
+        """
         wish, created = WishList.objects.get_or_create(user=request.user)
         # Delete all wish items associated with the current user's wishlist
         wish.wish_items.all().delete()

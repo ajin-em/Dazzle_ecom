@@ -84,8 +84,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 #custom context_processor
-                # 'store.context_processors.count',
-                # 'store.context_processors.wishlist_status',
+                'store.context_processors.count',
             ],
         },
     },
