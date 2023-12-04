@@ -185,8 +185,8 @@
                   <div class="input-group mt-3 mb-4">
                     <input type="text" class="form-control border" id="couponCodeInput" name="coupon_code" value=""
                       placeholder="Coupon code" />
-                    <button class="btn btn-light text-success border" onclick="apply_coupon()">Apply</button>
-                    <button class="btn btn-light text-danger border" onclick="clear_coupon()"><img width="25" height="25" src="https://img.icons8.com/hieroglyphs/32/FA5252/experimental-trash-hieroglyphs.png" alt="experimental-trash-hieroglyphs"/></button>                  
+                    <button class="btn btn-outline-light text-success border" onclick="apply_coupon()">Apply</button>
+                    <button class="btn btn-outline-light text-danger border" onclick="clear_coupon()"><i class="fas fa-trash"></i></button>                  
                   </div>
 
                   <div class="p-2" style="height: 150px; overflow-y: auto;">
@@ -239,7 +239,7 @@
                         </div>
                         <div class="ms-auto">
                           <a href="{% url 'remove_from_cart' pslug=item.product_variant.product.slug vslug=item.product_variant.slug %}"
-                            role="button" type="button" class="btn btn-outline-danger ms-5" data-mdb-toggle="tooltip"
+                            role="button" type="button" class="btn btn-outline-light text-danger ms-5" data-mdb-toggle="tooltip"
                             title="Remove item">
                             <i class="fas fa-trash"></i>
                           </a>

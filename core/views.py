@@ -54,23 +54,21 @@ class CreateUser(View):
             messages.warning(request, e)
             return redirect('register')
         
-        # Check if the passwords match
         if password != confirm_password:
-            # Display a warning and redirect to registration form
             messages.warning(request, "Passwords do not match")
             return redirect('register')
 
-        # Check if the email is already registered
+        if CustomUser.objects.filter(username=username).exists():
+            messages.warning(request, "Username is already taken. Please choose a different username.")
+            return redirect('register')
+
         if CustomUser.objects.filter(email=email).exists():
-            # Display a warning and redirect to registration form
             messages.warning(request, "Email already registered, please use a different email")
             return redirect('register')
         otp = str(random.randint(100000, 999999))
         account_verification_email(email,otp)
         request.session['signup_data'] = {'username':username,'email': email,'password': password, 'otp': otp}
 
-        # Create a new user account and display a success message
-        # CustomUser.objects.create_user(username=username, email=email, password=password)
         messages.success(request, "OTP send to your mail.")
         return redirect('verify_otp')
 

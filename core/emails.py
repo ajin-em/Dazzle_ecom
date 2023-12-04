@@ -1,7 +1,10 @@
+from __future__ import absolute_import
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from dazzleumbrella.celery import app
 
+@app.task
 
 def account_verification_email(email,otp):
   subject = 'Account verification OTP'
