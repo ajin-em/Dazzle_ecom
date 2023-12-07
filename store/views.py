@@ -7,12 +7,42 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.cache import cache
-import redis
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .context_processors import *
+import razorpay
+from django.core.cache import cache
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.views.decorators.cache import cache_page
+
+# class Home(View):
+#     """
+#     View for rendering the home page.
+
+#     This view displays the home page, showing the currently logged-in user, all products, and banners.
+
+#     Attributes:
+#         None
+
+#     Methods:
+#         get(request): Handles GET requests to display the home page.
+#     """
+#     def get(self, request):
+#         # TODO:REFER SELECT RELATED AND PREFETCH RELATED TO OPTIMIZE ORM QUERIES
+#         # TODO: INSTALL DJANGO DEBUG TOOLBAR TO ANALYZE ORM QUERIES
+#         # TODO: IMPLEMENT CACHE FOR PRODUCTS/BANNERS UPDATED THROUGH ADMIN PANEL
+#         # TODO: IMPLEMENT CELERY 
+    
+#         products = Product.objects.all().select_related('category')
+#         banners = Banner.objects.all()
+#         context = {
+#         'products': products,
+#         'banners': banners,
+        
+#         }
+#         return render(request, 'index.html', context)
 
 class Home(View):
     """
@@ -26,21 +56,69 @@ class Home(View):
     Methods:
         get(request): Handles GET requests to display the home page.
     """
+    def get_cache_key(self):
+        return "home_page_data"  
+
     def get(self, request):
-        # TODO:REFER SELECT RELATED AND PREFETCH RELATED TO OPTIMIZE ORM QUERIES
-        # TODO: INSTALL DJANGO DEBUG TOOLBAR TO ANALYZE ORM QUERIES
-        # TODO: IMPLEMENT CACHE FOR PRODUCTS/BANNERS UPDATED THROUGH ADMIN PANEL
-        # TODO: IMPLEMENT CELERY 
-    
-        products = Product.objects.all().select_related('category')
-        banners = Banner.objects.all()
-        context = {
-        'products': products,
-        'banners': banners,
-        
-        }
+        cache_key = self.get_cache_key()
+        cached_data = cache.get(cache_key)
+
+        if not cached_data:
+            products = Product.objects.select_related('category').all()
+            banners = Banner.objects.all()
+
+            context = {
+                'products': products,
+                'banners': banners,
+            }
+            cache.set(cache_key, context)
+        else:
+            context = cached_data
+
         return render(request, 'index.html', context)
 
+
+@receiver(post_save, sender=Product)
+def invalidate_product_cache(sender, instance, **kwargs):
+    cache_key = "home_page_data"  # Cache key for the home page data
+    cache.delete(cache_key)
+
+
+
+
+# class ProductListing(View):
+#     """
+#     View for rendering the product listing page.
+
+#     This view displays a list of products available in the store.
+
+#     Attributes:
+#         None
+
+#     Methods:
+#         get(request): Handles GET requests to display the product listing page.
+#     """
+#     def get(self, request):
+#         category = request.GET.get('category')  
+#         if page := request.GET.get('page'):
+#             pass
+#         else:
+#             page = 1
+
+#         if category:
+#             item = get_object_or_404(Category, slug=category)
+#             products = Product.objects.filter(category=item).select_related('category') 
+#         else:    
+#             products = Product.objects.all().select_related('category')
+        
+#         paginator = Paginator(products, 2)
+#         page = paginator.page(page)
+#         context = {
+#         'products': products,
+#         'page': page,
+#     }
+
+#         return render(request, 'store.html', context)
 class ProductListing(View):
     """
     View for rendering the product listing page.
@@ -53,28 +131,79 @@ class ProductListing(View):
     Methods:
         get(request): Handles GET requests to display the product listing page.
     """
-    def get(self, request):
-        category = request.GET.get('category')  
-        if page := request.GET.get('page'):
-            pass
-        else:
-            page = 1
 
-        if category:
-            item = get_object_or_404(Category, slug=category)
-            products = Product.objects.filter(category=item).select_related('category') 
-        else:    
-            products = Product.objects.all().select_related('category')
-        
-        paginator = Paginator(products, 2)
-        page = paginator.page(page)
-        context = {
-        'products': products,
-        'page': page,
-    }
+    def get_cache_key(self, request):
+        return f"product_listing_{request.GET.get('category')}_{request.GET.get('page')}"
+
+    def get(self, request):
+        cache_key = self.get_cache_key(request)
+        cached_data = cache.get(cache_key)
+
+        if not cached_data:
+            category = request.GET.get('category')  
+            if page := request.GET.get('page'):
+                pass
+            else:
+                page = 1
+
+            if category:
+                item = get_object_or_404(Category, slug=category)
+                products = Product.objects.filter(category=item).select_related('category') 
+            else:    
+                products = Product.objects.all().select_related('category')
+            
+            paginator = Paginator(products, 2)
+            page = paginator.page(page)
+            context = {
+                'products': products,
+                'page': page,
+            }
+
+            cache.set(cache_key, context, timeout=900)  # Cache for 15 minutes (900 seconds)
+        else:
+            context = cached_data
 
         return render(request, 'store.html', context)
-        
+
+
+@receiver(post_save, sender=Product)
+def invalidate_product_cache(sender, instance, **kwargs):
+    cache_key = f"product_listing_{instance.category.slug}_1"  
+    cache.delete(cache_key)
+
+# class ProductDetailView(View):
+#     """
+#     A view displaying the details of a specific product variant.
+
+#     Attributes:
+#         None
+
+#     Methods:
+#         get(request, pslug, vslug): Renders the product detail page based on the product's slug and variant's slug.
+#     """
+#     def get(self, request, pslug, vslug):
+#         """
+#         Retrieves the product and its variant based on the provided slugs,
+#         checks if the variant is in the wishlist, and renders the product detail page.
+
+#         Args:
+#             request: The HTTP request.
+#             pslug: The slug of the product.
+#             vslug: The slug of the product variant.
+
+#         Returns:
+#             Rendered product detail page with context data.
+#         """
+#         product = get_object_or_404(Product, slug=pslug )
+#         variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
+#         is_in_wishlist = WishItem.objects.filter(product_variant=variant).exists()
+#         context = {
+#             'variant': variant,
+#             'is_in_wishlist': is_in_wishlist,
+#         }
+
+#         return render(request, "product_detail.html", context)
+
 class ProductDetailView(View):
     """
     A view displaying the details of a specific product variant.
@@ -85,28 +214,40 @@ class ProductDetailView(View):
     Methods:
         get(request, pslug, vslug): Renders the product detail page based on the product's slug and variant's slug.
     """
+    def get_cache_key(self, pslug, vslug):
+        return f"product_detail_{pslug}_{vslug}"
+
     def get(self, request, pslug, vslug):
-        """
-        Retrieves the product and its variant based on the provided slugs,
-        checks if the variant is in the wishlist, and renders the product detail page.
+        cache_key = self.get_cache_key(pslug, vslug)
+        cached_data = cache.get(cache_key)
 
-        Args:
-            request: The HTTP request.
-            pslug: The slug of the product.
-            vslug: The slug of the product variant.
+        if not cached_data:
+            product = get_object_or_404(Product, slug=pslug)
+            variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
+            is_in_wishlist = WishItem.objects.filter(product_variant=variant).exists()
+            context = {
+                'variant': variant,
+                'is_in_wishlist': is_in_wishlist,
+            }
 
-        Returns:
-            Rendered product detail page with context data.
-        """
-        product = get_object_or_404(Product, slug=pslug )
-        variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
-        is_in_wishlist = WishItem.objects.filter(product_variant=variant).exists()
-        context = {
-            'variant': variant,
-            'is_in_wishlist': is_in_wishlist,
-        }
+            cache.set(cache_key, context)
+        else:
+            context = cached_data
 
         return render(request, "product_detail.html", context)
+
+
+@receiver(post_save, sender=Product)
+@receiver(post_save, sender=WishItem)
+def invalidate_product_detail_cache(sender, instance, **kwargs):
+    if isinstance(instance, Product):
+        cache_key = f"product_detail_{instance.slug}_*"
+    elif isinstance(instance, WishItem):
+        cache_key = f"product_detail_{instance.product_variant.product.slug}_*"
+    else:
+        return
+
+    cache.delete_pattern(cache_key)
 
 class CartView(LoginRequiredMixin, View):
     """
@@ -274,6 +415,7 @@ class CheckoutView(LoginRequiredMixin, View):
             Renders the checkout page with necessary context data for the checkout process.
         """
         coupon_id = request.GET.get('coupon')
+        # coupon_slug = request.GET.get('coupon')
         coupon_discount = 0
         if coupon_id:
             coupon = Coupon.objects.get(id=coupon_id)
@@ -301,7 +443,10 @@ class CheckoutView(LoginRequiredMixin, View):
         checkout.coupon_price = coupon_discount
         checkout.final_price = final_price
         checkout.save()
-        coupons = [coupon for coupon in coupons if coupon.minimum_amount <= final_price]        
+        coupons = [coupon for coupon in coupons if coupon.minimum_amount <= final_price]   
+
+        client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
+        payment = client.order.create(dict(amount = final_price*100, currency = "INR", payment_capture = 1))   
         
         context = {'checkout': checkout,
                     'cart': cart,
@@ -310,9 +455,48 @@ class CheckoutView(LoginRequiredMixin, View):
                     'coupons': coupons,
                     'coupon_discount':coupon_discount,
                     'final_price': final_price,
+                    'payment': payment,
+
                   }
 
         return render(request, 'checkout.html', context)
+
+    def post(self, request):
+        cart = request.user.cart
+        address_id = request.POST.get('address')
+        payment_method = request.POST.get('pay')
+        
+        try:
+            checkout = Checkout.objects.get(cart=cart)
+            checkout.payment_method = payment_method  
+            checkout.save()
+        except Checkout.DoesNotExist:
+            address = get_object_or_404(UserAddress, id=address_id)
+            checkout = Checkout.objects.create(
+                cart=cart,
+                address=address,
+                payment_method=payment_method
+            )
+
+        order = Order.objects.create(
+            user=request.user,
+            checkout=checkout,
+        )
+
+        cart_items = cart.cart_items.select_related('product_variant__product')
+        for cart_item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product_variant=cart_item.product_variant,
+                count=cart_item.count,
+                total_selling_price=cart_item.total_selling_price,
+                total_actual_price=cart_item.total_actual_price
+            )
+
+        cart.cart_items.all().delete()
+        cart.update_totals()
+
+        return redirect('order_success')
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ClearCouponView(View):
@@ -338,7 +522,6 @@ class ClearCouponView(View):
             Redirects to the 'checkout' URL after attempting to clear the coupon.
         """
         try:
-            # Assuming you're retrieving the checkout instance for the current user
             checkout = Checkout.objects.get(user=request.user)
             checkout.coupon_price = 0
             checkout.save()
@@ -348,6 +531,44 @@ class ClearCouponView(View):
             messages.error(request, f'Failed to clear coupon: {str(e)}')
 
         return redirect('checkout') 
+    
+
+class OrderSuccess(View):
+  def get(self, request):
+    return render(request, 'order_success.html') 
+
+
+class OrderView(LoginRequiredMixin, View):
+    template_name = 'order_history.html'
+
+    def get(self, request):
+        user = request.user  
+        orders = Order.objects.filter(user=user).order_by('-created_at')
+        return render(request, self.template_name, {'orders': orders})
+
+    def post(self, request):
+        user = request.user  
+        cart = get_object_or_404(Cart, user=user)
+        address = UserAddress.objects.get(user=user)  
+       
+        checkout = Checkout.objects.create(address=address, cart=cart, payment_method="Card")
+
+        order = Order.objects.create(user=user, checkout=checkout)
+
+        for item in cart.cart_items.all():
+            OrderItem.objects.create(
+                order=order,
+                product_variant=item.product_variant,
+                count=item.count,
+                total_selling_price=item.total_selling_price,
+                total_actual_price=item.total_actual_price
+            )
+        
+        cart.cart_items.all().delete()
+        cart.update_totals()  
+        
+        return redirect('order_success') 
+
 
 class WhishList(LoginRequiredMixin, View):
     """
@@ -400,15 +621,12 @@ class AddToWishList(LoginRequiredMixin, View):
         variant = get_object_or_404(Product_Variant, product=product, slug=vslug)
         wish, created = WishList.objects.get_or_create(user=request.user)
 
-        # Check if the item already exists in the wishlist
         wish_item_exists = WishItem.objects.filter(wish=wish, product_variant=variant).exists()
 
         if wish_item_exists:
-            # If the item is already in the wishlist, remove it
             wish_item = WishItem.objects.get(wish=wish, product_variant=variant)
             wish_item.delete()
         else:
-            # If the item is not in the wishlist, add it
             wish_item = WishItem.objects.create(wish=wish, product_variant=variant)
             wish_item.save()
 
@@ -433,9 +651,6 @@ class RemoveFromWishList(View):
         """
         product = get_object_or_404(Product, slug=pslug)
         variant = get_object_or_404(Product_Variant, product=product, slug=vslug)
-        
-        # Assuming the relationship between WishItem and Product_Variant is 'product_variant'
-        # Update the filtering based on your model relationships
         wish_item = get_object_or_404(WishItem, wish__user=request.user, product_variant=variant)
 
         wish_item.delete()
@@ -457,6 +672,5 @@ class ClearWishList(View):
             Redirects to the 'wish' URL after clearing the wishlist.
         """
         wish, created = WishList.objects.get_or_create(user=request.user)
-        # Delete all wish items associated with the current user's wishlist
         wish.wish_items.all().delete()
         return redirect('wish')

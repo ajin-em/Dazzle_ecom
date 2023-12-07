@@ -221,6 +221,11 @@ class Coupon(models.Model):
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
     minimum_amount = models.PositiveIntegerField(default=0)
+    # slug = models.SlugField(max_length=200, unique=True,blank=True,null=True)
+
+    # def save(self, *args, **kwargs):
+    #     self.slug = slugify(self.coupon_code)
+    #     super().save(*args, **kwargs)
 
 
 class Checkout(models.Model):
@@ -246,7 +251,7 @@ class Checkout(models.Model):
     payment_method = models.CharField(max_length=200, null=False, blank=False)
 
 
-class Orders(models.Model):
+class Order(models.Model):
     """
     Represents an order made by a user.
 
@@ -261,10 +266,45 @@ class Orders(models.Model):
     - Each order is associated with a user, a checkout, and has a creation and update time.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='orders')
-    checkout= models.ForeignKey(Checkout, on_delete=models.CASCADE, related_name='orders') 
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
+    checkout = models.ForeignKey(Checkout, on_delete=models.CASCADE, related_name='orders')
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True) 
+    updated_at = models.DateTimeField(auto_now=True)
+
+class OrderItem(models.Model):
+    """
+    Represents an item in a user's order.
+
+    Attributes:
+    - id (UUIDField): The unique identifier for the order item.
+    - order (ForeignKey): The order to which this item belongs.
+    - product_variant (ForeignKey): The product variant associated with this item.
+    - count (PositiveIntegerField): The quantity of the product variant in the order.
+    - total_selling_price (PositiveIntegerField): Total selling price for the items in the order.
+    - total_actual_price (PositiveIntegerField): Total actual price for the items in the order.
+
+    Methods:
+    - save(self, *args, **kwargs): Save method to update order totals after saving the item.
+    - delete(self, *args, **kwargs): Delete method to update order totals before deleting the item.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    product_variant = models.ForeignKey(Product_Variant, on_delete=models.CASCADE)
+    count = models.PositiveIntegerField(default=1)
+    total_selling_price = models.PositiveIntegerField(default=0)
+    total_actual_price = models.PositiveIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        self.total_selling_price = self.count * self.product_variant.selling_price
+        self.total_actual_price = self.count * self.product_variant.actual_price
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        order = self.order
+        order.update_totals()
+        super().delete(*args, **kwargs)
+
 
 
 class WishList(models.Model):

@@ -50,7 +50,8 @@ class CreateUser(View):
             validate_password(password, user=None)
         except ValidationError as e:
             # Display validation error messages and redirect to registration form
-            messages.warning(request, e)
+            for message in e.messages:
+                messages.warning(request, message)
             return redirect('register')
         
         if password != confirm_password:
@@ -66,6 +67,7 @@ class CreateUser(View):
             return redirect('register')
         otp = str(random.randint(100000, 999999))
         account_verification_email(email,otp)
+        # account_verification_email.apply_async(args=[email, otp])
         request.session['signup_data'] = {'username':username,'email': email,'password': password, 'otp': otp}
 
         messages.success(request, "OTP send to your mail.")
@@ -121,6 +123,7 @@ class ResendOTP(View):
             otp = str(random.randint(100000, 999999))
             account_verification_email(email, otp)
             signup_data['otp'] = otp
+            print(signup_data)
             return redirect('verify_otp')
         return redirect('register')
             

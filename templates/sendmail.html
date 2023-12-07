@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <title>Dazzle</title>
 </head>
 <body>
-    <div style="margin:50px auto; width:70%; padding:20px; background-color:#f7f7f7;">
-        <h2 style="color: #00466a;text-decoration:none;font-weight:600">Dazzle</h2>
+    <div class="card" style="margin:50px auto; width:70%; padding:20px; background-color:#f7f7f7;">
+        <h2 class="text-center" style="color: #156a00;text-decoration:none;font-weight:600">Dazzle Umbrella</h2>
         <hr>
-        <p style="margin-top: 20px;">Hi {{user}},<br>Thank you for choosing Dazzle. Use the following OTP to complete your Sign Up procedures. OTP is valid for 
+        <p style="margin-top: 20px;">Thank you for choosing Dazzle Umbrella. Use the following OTP to complete your Sign Up procedures. OTP is valid for 
             <b style="font-size: 1.2em;">1 minute</b> 
         </p>
-        <h1 style="background: #00466a;margin: 30px auto;width: max-content;padding: 5px 20px; color: #fff;border-radius: 4px;">{{otp}}</h1>
+        <h1 class="shadow" style="background: #156a00;margin: 30px auto;width: max-content;padding: 5px 20px; color: #fff;border-radius: 4px;">{{otp}}</h1>
             <p>Regards,<br>Team Dazzle</p>
         <hr>
         <p style="text-align: center;">www.dazzleumbrella.shop</p>
     </div> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>

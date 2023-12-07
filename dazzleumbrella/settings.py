@@ -152,15 +152,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+         'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-cache-key-for-your-app',
+            }
         }
-    }
-}
-
 
 #email verification
 
@@ -235,3 +231,6 @@ LOGIN_URL = 'signin'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_REDIRECT_URL = 'home'
 
+# razor_pay
+RAZORPAY_API_KEY = os.environ.get('razor_pay_key_id')
+RAZORPAY_API_SECRET = os.environ.get('key_secret') 
