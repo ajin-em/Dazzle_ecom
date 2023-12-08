@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import *
+from django.contrib.auth.models import Group
+from django_celery_results.admin import TaskResult, GroupResult
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
@@ -18,9 +20,25 @@ class ProductVariantAdmin(admin.ModelAdmin):
 class BannerAdmin(admin.ModelAdmin):
     list_display = ['id', 'image']
 
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'created_at', 'updated_at')
+    inlines = [
+        OrderItemInline,
+    ]
+
+
 # Register models with modified admin classes
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Product_Variant, ProductVariantAdmin)
 admin.site.register(Banner, BannerAdmin)
 admin.site.register(Coupon)
+admin.site.register(Order, OrderAdmin)
+admin.site.unregister(Group)
+# admin.site.unregister(TaskResult)
+admin.site.unregister(GroupResult)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser
+from .models import *
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -25,6 +25,10 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('email', 'username', 'is_active', 'is_staff', 'is_blocked')
     list_filter = ('is_active', 'is_staff', 'is_blocked')
     search_fields = ('email', 'username')
+    fieldsets = (
+        (None, {'fields': ('email', 'username')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_blocked')}),
+    )
 
     def ban_user(self, request, queryset):
         """
@@ -60,3 +64,20 @@ class CustomUserAdmin(admin.ModelAdmin):
     unban_user.short_description = "Unban selected users"
 
     actions = [ban_user, unban_user]
+
+# class UserAddressAdmin(admin.ModelAdmin):
+#     list_display = ['user', 'address_type', 'place', 'pincode']  
+#     readonly_fields = ['user', 'address_type', 'first_name', 'last_name', 'gender', 'mobile', 'email', 'address', 'place', 'landmark', 'pincode', 'post', 'district', 'state']
+
+#     def has_add_permission(self, request):
+#         return False 
+
+class UserAddressAdmin(admin.ModelAdmin):
+    readonly_fields = ['user', 'first_name', 'last_name', 'gender', 'mobile', 'email', 'address', 'place', 'landmark', 'pincode', 'post', 'district', 'state']
+
+    
+
+    def has_add_permission(self, request):
+        return False
+
+admin.site.register(UserAddress, UserAddressAdmin)
