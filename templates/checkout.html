@@ -88,8 +88,8 @@
                     {% for user_address in user_addresses %}
                     <div class="form-check border mb-2">
                       <div class="p-2">
-                        <input class="form-check-input" type="radio" name="address" value="{{ user_address.id }}"
-                          id="user_address{{ forloop.counter }}" {% if forloop.first %}checked{% endif %}>
+                        <input class="form-check-input address" type="radio" name="address" value="{{ user_address.id }}"
+                          id="user_address{{ forloop.counter }}" {% if forloop.first %}checked{% endif %} onchange="updateHiddenInputs()">
                         <label class="form-check-label" for="user_address{{ forloop.counter }}">
                           <div>{{ user_address.gender }}. {{ user_address.first_name }} {{ user_address.last_name }}-
                             {{ user_address.mobile }}</div>
@@ -204,8 +204,8 @@
                     {% for coupon in coupons %}
                     <div class="form-check border mb-2">
                       <div class="p-2">
-                        <input class="form-check-input coupon-radio" type="radio" name="coupon" value="{{ coupon.id }}"
-                          id="coupon{{ forloop.counter }}" data-coupon-code="{{ coupon.coupon_code }}">
+                        <input class="form-check-input coupon-radio coupon" type="radio" name="coupon" value="{{ coupon.id }}"
+                          id="coupon{{ forloop.counter }}" data-coupon-code="{{ coupon.coupon_code }}" onchange="updateHiddenInputs()">
                         <label class="form-check-label" for="coupon{{ forloop.counter }}">
                           <div>
                             {{ coupon.coupon_code }}
@@ -238,6 +238,9 @@
 
                 <form class="my-2" id="payment" action="{% url 'checkout' %}" method="post">
                   {% csrf_token %}
+                  <input type="hidden" value="testing" name="testing">
+                  <!-- <input type="hidden" id="addressInput" name="hiddenaddress" value="">
+                  <input type="hidden" id="couponInput" name="coupon" value=""> -->
                   <input type="hidden" id="pay" name="pay" value="">
                   <div class="border d-flex gap-3 mb-2 p-2">
                     <button type="submit" class="btn btn-outline-light text-primary btn-sm border border-3 border-primary "
@@ -374,6 +377,38 @@
 
     </div>
     <script src="https://kit.fontawesome.com/c187aa525a.js" crossorigin="anonymous"></script>
+
+
+
+
+
+    <script>
+
+      // const checkedElement = document.querySelector('.address:checked')
+      // const hidden_address=document.getElementById('addressInput')
+      // hidden_address.value=checkedElement.value
+
+      // function updateHiddenInputs() {
+      //   const checkedElement = document.querySelector('.address:checked')
+      //   hidden_address.value=checkedElement.value
+      // }
+
+      //   // Retrieve all elements with the 'address' class
+      //   const addressElements = document.getElementsByClassName('address');
+      //   const couponElements = document.getElementsByClassName('coupon');
+      //   // Get the value from the first element with the 'address' class (assuming there's only one element)
+      //   const addressValue = addressElements.length > 0 ? addressElements[0].value : '';
+      //   const couponValue = couponElements.length > 0 ? couponElements[0].value : '';
+      //   // Set the retrieved values to the hidden input fields
+      //   document.getElementById('addressInput').value = addressValue;
+
+      //   document.getElementById('couponInput').value = couponValue;
+      //         }
+    </script>
+    
+
+
+
 
     <script>
       const couponRadios = document.querySelectorAll('.coupon-radio');
@@ -567,17 +602,15 @@
       }
       var payment_form = document.getElementById('payment')
       var options = {
-          "key": "rzp_test_TsgQnf79q7ZDBa", // Enter the Key ID generated from the Dashboard
-          "amount": "{{payment.amount}}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+          "key": "rzp_test_TsgQnf79q7ZDBa", 
+          "amount": "{{payment.amount}}",
           "currency": "INR",
           "name": "Dazzle Umbrella",
           "description": "Test Transaction",
           "image": "https://example.com/your_logo",
-          "order_id": "{{payment.id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+          "order_id": "{{payment.id}}", 
           "handler": function (response){
-              // alert(response.razorpay_payment_id);
-              // alert(response.razorpay_order_id);
-              // alert(response.razorpay_signature)
+              
               pay.value='online'
               payment_form.submit()
           },

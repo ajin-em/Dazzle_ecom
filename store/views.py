@@ -415,7 +415,6 @@ class CheckoutView(LoginRequiredMixin, View):
             Renders the checkout page with necessary context data for the checkout process.
         """
         coupon_id = request.GET.get('coupon')
-        # coupon_slug = request.GET.get('coupon')
         coupon_discount = 0
         if coupon_id:
             coupon = Coupon.objects.get(id=coupon_id)
@@ -430,25 +429,13 @@ class CheckoutView(LoginRequiredMixin, View):
             return redirect('cart')
         coupons = Coupon.objects.all()        
         user_address = user_addresses.first()
-        cart_items = cart.cart_items.all().order_by('id').select_related('product_variant__product')
-
-        try:
-            checkout = Checkout.objects.get(cart=cart)
-        except Checkout.DoesNotExist:
-            checkout = Checkout.objects.create(
-                cart=cart,
-                address=user_address,
-                payment_method='payment_method'
-            )
-        checkout.coupon_price = coupon_discount
-        checkout.final_price = final_price
-        checkout.save()
+        cart_items = cart.cart_items.all().order_by('id').select_related('product_variant')
         coupons = [coupon for coupon in coupons if coupon.minimum_amount <= final_price]   
 
         client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
         payment = client.order.create(dict(amount = final_price*100, currency = "INR", payment_capture = 1))   
         
-        context = {'checkout': checkout,
+        context = {
                     'cart': cart,
                     'user_addresses': user_addresses,
                     'cart_items': cart_items,
@@ -463,38 +450,49 @@ class CheckoutView(LoginRequiredMixin, View):
 
     def post(self, request):
         cart = request.user.cart
-        address_id = request.POST.get('address')
+        testing = request.POST.get('testing')
+        address_id = request.POST.get('hiddenaddress')
         payment_method = request.POST.get('pay')
-        
-        try:
-            checkout = Checkout.objects.get(cart=cart)
-            checkout.payment_method = payment_method  
-            checkout.save()
-        except Checkout.DoesNotExist:
-            address = get_object_or_404(UserAddress, id=address_id)
-            checkout = Checkout.objects.create(
-                cart=cart,
-                address=address,
-                payment_method=payment_method
-            )
+        coupon_discount = request.GET.get('coupon')
+        print('========================================================')
+        print(address_id)
+        print('========================================================')
+        print(payment_method)
+        print('========================================================')
+        print(coupon_discount)
+        print('========================================================')
+        print('========================================================')
+        print(testing)
+        print('========================================================')
+        # try:
+        #     checkout = Checkout.objects.get(cart=cart)
+        #     checkout.payment_method = payment_method  
+        #     checkout.save()
+        # except Checkout.DoesNotExist:
+        #     address = get_object_or_404(UserAddress, id=address_id)
+        #     checkout = Checkout.objects.create(
+        #         cart=cart,
+        #         address=address,
+        #         payment_method=payment_method
+        #     )
 
-        order = Order.objects.create(
-            user=request.user,
-            checkout=checkout,
-        )
+        # order = Order.objects.create(
+        #     user=request.user,
+        #     checkout=checkout,
+        # )
 
-        cart_items = cart.cart_items.select_related('product_variant__product')
-        for cart_item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product_variant=cart_item.product_variant,
-                count=cart_item.count,
-                total_selling_price=cart_item.total_selling_price,
-                total_actual_price=cart_item.total_actual_price
-            )
+        # cart_items = cart.cart_items.select_related('product_variant__product')
+        # for cart_item in cart_items:
+        #     OrderItem.objects.create(
+        #         order=order,
+        #         product_variant=cart_item.product_variant,
+        #         count=cart_item.count,
+        #         total_selling_price=cart_item.total_selling_price,
+        #         total_actual_price=cart_item.total_actual_price
+        #     )
 
-        cart.cart_items.all().delete()
-        cart.update_totals()
+        # cart.cart_items.all().delete()
+        # cart.update_totals()
 
         return redirect('order_success')
 

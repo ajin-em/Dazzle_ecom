@@ -221,34 +221,8 @@ class Coupon(models.Model):
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
     minimum_amount = models.PositiveIntegerField(default=0)
-    # slug = models.SlugField(max_length=200, unique=True,blank=True,null=True)
+  
 
-    # def save(self, *args, **kwargs):
-    #     self.slug = slugify(self.coupon_code)
-    #     super().save(*args, **kwargs)
-
-
-class Checkout(models.Model):
-    """
-    Represents a checkout process for a user's purchase.
-
-    Attributes:
-    - id (UUIDField): Identifier for the checkout.
-    - address (ForeignKey to UserAddress): User's address for the checkout.
-    - cart (ForeignKey to Cart): User's cart associated with the checkout.
-    - coupon_price (IntegerField): Price after applying any associated coupon (default: 0).
-    - final_price (IntegerField): Final price after checkout (default: 0).
-    - payment_method (CharField): Chosen payment method for the checkout.
-
-    Relationships:
-    - Each checkout is associated with a user's address, cart, and optionally a coupon.
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    address = models.ForeignKey(UserAddress, on_delete=models.CASCADE, related_name='checkout')
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='checkout')
-    coupon_price = models.IntegerField(default=0)
-    final_price = models.IntegerField(default=0)
-    payment_method = models.CharField(max_length=200, null=False, blank=False)
 
 
 class Order(models.Model):
@@ -267,9 +241,24 @@ class Order(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
-    checkout = models.ForeignKey(Checkout, on_delete=models.CASCADE, related_name='orders')
+    address = models.ForeignKey(UserAddress, on_delete=models.CASCADE, related_name='orders', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    payment_method = models.CharField(max_length=200, null=True, blank=False, )
+    final_price = models.IntegerField(default=0)
+    coupon_price = models.IntegerField(default=0)
+    
+    ORDER_STATUS_CHOICES = [
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+        ('processing', 'Processing'),
+        ('shipping', 'Shipping'),
+        ('delivered', 'Delivered'),
+    ]
+    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='confirmed')
+    def __str__(self):
+        return f'id: {self.id}'
+    
 
 class OrderItem(models.Model):
     """
