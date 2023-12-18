@@ -88,7 +88,7 @@
                     {% for user_address in user_addresses %}
                     <div class="form-check border mb-2">
                       <div class="p-2">
-                        <input class="form-check-input address" type="radio" name="address" value="{{ user_address.id }}"
+                        <input class="form-check-input addresscheck" type="radio" name="address" value="{{ user_address.id }}"
                           id="user_address{{ forloop.counter }}" {% if forloop.first %}checked{% endif %} onchange="updateHiddenInputs()">
                         <label class="form-check-label" for="user_address{{ forloop.counter }}">
                           <div>{{ user_address.gender }}. {{ user_address.first_name }} {{ user_address.last_name }}-
@@ -191,7 +191,7 @@
 
               <div class="card-body">
                 <div class="input-group mb-4">
-                  <input type="text" class="form-control border" id="couponCodeInput" name="coupon_code" value=""
+                  <input type="text" class="form-control border couponchecked" id="couponCodeInput" name="coupon_code" value=""
                     placeholder="Coupon code" />
                   <button class="btn btn-outline-light text-success border" onclick="apply_coupon()">Apply</button>
                   <button class="btn btn-outline-light text-danger border" onclick="clear_coupon()"><i
@@ -205,7 +205,7 @@
                     <div class="form-check border mb-2">
                       <div class="p-2">
                         <input class="form-check-input coupon-radio coupon" type="radio" name="coupon" value="{{ coupon.id }}"
-                          id="coupon{{ forloop.counter }}" data-coupon-code="{{ coupon.coupon_code }}" onchange="updateHiddenInputs()">
+                          id="coupon{{ forloop.counter }}" data-coupon-code="{{ coupon.coupon_code }}" onchange="updateAppliedCouponId()">
                         <label class="form-check-label" for="coupon{{ forloop.counter }}">
                           <div>
                             {{ coupon.coupon_code }}
@@ -238,9 +238,8 @@
 
                 <form class="my-2" id="payment" action="{% url 'checkout' %}" method="post">
                   {% csrf_token %}
-                  <input type="hidden" value="testing" name="testing">
-                  <!-- <input type="hidden" id="addressInput" name="hiddenaddress" value="">
-                  <input type="hidden" id="couponInput" name="coupon" value=""> -->
+                  <input type="hidden" id="addressInput" name="hiddenaddress" value="">
+                  <input type="hidden" id="appliedCouponId" name="applied_coupon_id" value="">
                   <input type="hidden" id="pay" name="pay" value="">
                   <div class="border d-flex gap-3 mb-2 p-2">
                     <button type="submit" class="btn btn-outline-light text-primary btn-sm border border-3 border-primary "
@@ -379,36 +378,26 @@
     <script src="https://kit.fontawesome.com/c187aa525a.js" crossorigin="anonymous"></script>
 
 
-
-
-
     <script>
 
-      // const checkedElement = document.querySelector('.address:checked')
-      // const hidden_address=document.getElementById('addressInput')
-      // hidden_address.value=checkedElement.value
+    function updateHiddenInputs() {
+        const checkedAddressElement = document.querySelector('.addresscheck:checked');
+        const hidden_address = document.getElementById('addressInput');
+        if (checkedAddressElement) {
+            hidden_address.value = checkedAddressElement.value;
+        }
+    }
 
-      // function updateHiddenInputs() {
-      //   const checkedElement = document.querySelector('.address:checked')
-      //   hidden_address.value=checkedElement.value
-      // }
+    const addressElements = document.getElementsByClassName('addresscheck');
+    for (let i = 0; i < addressElements.length; i++) {
+        addressElements[i].addEventListener('change', updateHiddenInputs);
+    }
 
-      //   // Retrieve all elements with the 'address' class
-      //   const addressElements = document.getElementsByClassName('address');
-      //   const couponElements = document.getElementsByClassName('coupon');
-      //   // Get the value from the first element with the 'address' class (assuming there's only one element)
-      //   const addressValue = addressElements.length > 0 ? addressElements[0].value : '';
-      //   const couponValue = couponElements.length > 0 ? couponElements[0].value : '';
-      //   // Set the retrieved values to the hidden input fields
-      //   document.getElementById('addressInput').value = addressValue;
-
-      //   document.getElementById('couponInput').value = couponValue;
-      //         }
+    const addressValue = addressElements.length > 0 ? addressElements[0].value : '';
+    document.getElementById('addressInput').value = addressValue;
+    
     </script>
     
-
-
-
 
     <script>
       const couponRadios = document.querySelectorAll('.coupon-radio');
@@ -467,6 +456,24 @@
         }
       }
 
+
+      function updateAppliedCouponId() {
+    const selectedCoupon = document.querySelector('.coupon-radio:checked');
+    if (selectedCoupon) {
+        const couponId = selectedCoupon.value;
+        const appliedCouponIdInput = document.getElementById('appliedCouponId');
+        appliedCouponIdInput.value = couponId;
+    }
+}
+
+// Add an event listener to update the hidden input when a coupon is selected
+// const couponRadios = document.querySelectorAll('.coupon-radio');
+couponRadios.forEach(radio => {
+    radio.addEventListener('change', updateAppliedCouponId);
+});
+
+// Call the function initially to set the applied coupon ID if there's a pre-selected coupon
+updateAppliedCouponId();
     </script>
 
     <script>
@@ -663,6 +670,8 @@
         });
       }
     </script>
+
+    
 </body>
 
 </html>

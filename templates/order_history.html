@@ -1,6 +1,60 @@
 {% extends "base.html" %}
 {% block title %}DAZZLE | Order History{% endblock %}
 {% block content %}
+    {% load static %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+
+                <div class="d-grid gap-2 m-5">
+                    <a class="btn border rounded-0  btn-outline-dark  shadow  " href="{% url 'profile' %}" role="button">Profile</a>
+                    <a class="btn border rounded-0 btn-outline-dark shadow " href="{% url 'manage_address' %}" role="button">Manage Addresses</a>
+                    <a class="btn border rounded-0 btn-outline-dark active shadow " href="{% url 'order_history' %}" role="button">My Orders</a>
+                </div>
+            </div>
+
+            <div class="col-9 d-flex my-5">
+                <div class="container bootdey">
+                    <div class="panel panel-default panel-order">
+                        <div class="panel-heading">
+                            <strong>Order history</strong>
+                        </div>
+                        <div class="panel-body">
+                            {% for order_item in all_order_items %}
+                            Order ID: {{order_item.order.id}}
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <img src="{{ order_item.product_variant.cover_image.url }}" class="media-object img-thumbnail" />
+                                    </div>
+                                    <div class="col-md-11">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="pull-right">
+                                                    <label class="label label-info">{{ order_item.order.status }}</label>
+                                                </div>
+                                                
+                                               
+                                            </div>
+                                            <div class="col-md-12">
+                                                Order made on: {{ order_item.order.created_at|date:"d F Y" }} 
+                                            </div>
+                                            <hr class="p-0 m-0" style="height: 1px; background-color: black;">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% comment %} {% extends "base.html" %}
+{% block title %}DAZZLE | Order History{% endblock %}
+{% block content %}
 {% load static %}
 
 
@@ -129,4 +183,6 @@
 
        
        
-{% endblock %}
+{% endblock %} {% endcomment %}
+
+

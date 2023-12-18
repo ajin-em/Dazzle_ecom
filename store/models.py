@@ -283,16 +283,13 @@ class OrderItem(models.Model):
     count = models.PositiveIntegerField(default=1)
     total_selling_price = models.PositiveIntegerField(default=0)
     total_actual_price = models.PositiveIntegerField(default=0)
+    item_slug = models.SlugField(max_length=200,  null=True)
 
     def save(self, *args, **kwargs):
         self.total_selling_price = self.count * self.product_variant.selling_price
         self.total_actual_price = self.count * self.product_variant.actual_price
+        self.item_slug = slugify(self.product_variant.product.name)
         super().save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        order = self.order
-        order.update_totals()
-        super().delete(*args, **kwargs)
 
 
 

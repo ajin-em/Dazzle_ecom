@@ -146,10 +146,16 @@
                 <a href="{% url 'home' %}" class="brand-wrap">
                     <img class="logo img-fluid" src="{% static 'images/logo.png' %}" alt="Logo">
                 </a> <!-- brand-wrap.// -->
-                <div class="col-12 text-center">
+                <div class="col-12 ">
                     <!--  categories -->
-                    <div class="row justify-content-center my-3">
-                        <div class="col-12 text-center">
+                    <div class="row my-3 justify-content-between">
+                        <div class="input-group col-6">
+                            <form class="d-flex" method="get" action="{% url 'store' %}" role="search">
+                                <input class="form-control me-2" type="search" placeholder="Search" name="search">
+                                <button class="d-none" type="submit">Search</button>
+                            </form>
+                        </div>
+                        <div class="col-6 ">
                             <div class="categories d-flex justify-content-center">
                                 <ul class="list-group list-group-horizontal" style="border: none;">
                                     <li class="list-group-item  {% if request.GET.category == '1-fold' %} active {% endif %}"  onclick='category("1-fold")' style="cursor: pointer;">1 FOLD</li>
@@ -158,7 +164,6 @@
                                     <li class="list-group-item {% if request.GET.category == '5-fold' %} active {% endif %}" onclick='category("5-fold")' style="cursor: pointer;">5 FOLD</li>
                                     <li class="list-group-item {% if request.GET.category == 'kids' %} active {% endif %}" onclick='category("kids")' style="cursor: pointer;">KIDS</li>
                                 </ul>
-                                
                             </div>
                         </div>
                     </div>
@@ -208,7 +213,7 @@
         <!-- Copyright -->
     </footer>
     <!-- Footer -->
-</div> <!-- End of .container -->
+</div> <!-- End of container -->
 <!-- ========================= FOOTER END // ========================= -->
 <script>
     function category(type) {
@@ -216,21 +221,12 @@
         let currentUrl = new URL(baseUrl);
         let urlParams = new URLSearchParams(currentUrl.search);
 
-        
-        // Set the 'category' parameter in the URL
         urlParams.set('category', type);
         currentUrl.search = urlParams.toString();
 
-      
-
-        // Redirect to the new URL
         window.location.href = currentUrl.toString();
     }
-
-    // Call category function to test - replace 'testCategory' with an actual category
-    // category('testCategory');
+    
 </script>
-
-
 </body>
 </html>
