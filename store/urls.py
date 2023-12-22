@@ -18,7 +18,8 @@ urlpatterns = [
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('clear-coupon/', ClearCouponView.as_view(), name='clear_coupon'),
     path('order_success/', OrderSuccess.as_view(), name='order_success'),
-    path('order_history/', OrderHistoryView.as_view(), name='order_history'),
-    path('order/<slug:slug>/', UserOrderDetails.as_view(), name='order_details'),
+    path('my_orders/', OrderHistoryView.as_view(), name='order_history'),
+    path('my_orders/<uuid:order_id>/', OrderDetails.as_view(), name='order_details'),
+    path('order_item/<uuid:order_item_id>/cancel/', CancelOrderItem.as_view(), name='cancel_order_item'),
 
     ]

@@ -200,6 +200,8 @@ class CartItem(models.Model):
         self.total_selling_price = self.count * self.product_variant.selling_price
         self.total_actual_price = self.count * self.product_variant.actual_price
         super().save(*args, **kwargs)
+    
+    
 
 class Coupon(models.Model):
     """
@@ -245,17 +247,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     payment_method = models.CharField(max_length=200, null=True, blank=False, )
+    total_selling_price = models.IntegerField(default=0)
     final_price = models.IntegerField(default=0)
     coupon_price = models.IntegerField(default=0)
+
     
-    ORDER_STATUS_CHOICES = [
-        ('confirmed', 'Confirmed'),
-        ('cancelled', 'Cancelled'),
-        ('processing', 'Processing'),
-        ('shipping', 'Shipping'),
-        ('delivered', 'Delivered'),
-    ]
-    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='confirmed')
+    
     def __str__(self):
         return f'id: {self.id}'
     
@@ -283,13 +280,30 @@ class OrderItem(models.Model):
     count = models.PositiveIntegerField(default=1)
     total_selling_price = models.PositiveIntegerField(default=0)
     total_actual_price = models.PositiveIntegerField(default=0)
-    item_slug = models.SlugField(max_length=200,  null=True)
-
+    ORDER_STATUS_CHOICES = [
+        ('confirmed', 'Confirm'),
+        ('cancelled', 'Cancel'),
+        ('processing', 'Processing'),
+        ('shipping', 'Shipped'),
+        ('delivered', 'Delivered'),
+    ]
+    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='confirmed')
+    
     def save(self, *args, **kwargs):
         self.total_selling_price = self.count * self.product_variant.selling_price
         self.total_actual_price = self.count * self.product_variant.actual_price
-        self.item_slug = slugify(self.product_variant.product.name)
         super().save(*args, **kwargs)
+    
+    def update_stock_on_cancel(self):
+        self.product_variant.stock += self.count
+        self.product_variant.save()
+
+    def cancel_item(self):
+        self.update_stock_on_cancel()
+        self.status = 'cancelled'
+        self.product_variant.stock += self.count 
+        self.product_variant.save()
+        self.save(update_fields=['status'])
 
 
 

@@ -18,6 +18,7 @@
 </style>
 
 <div class="container">
+
   {% if cart_items %}
   <div class="row ">
     <div class="content">
@@ -138,7 +139,7 @@
                 <p class="text-danger h4">Please add at least one <mark>address</mark> to proceed with checkout.	&#129300;</p>
               </blockquote>
               <figcaption class="blockquote-footer">
-                <cite title="Source Title">Team Dazzle Umbrella</cite>
+                <cite title="Source Title"> <b class="h6"> hint:</b> you can add address from user profile</cite>
               </figcaption>
             </figure>
           </div>
@@ -156,7 +157,6 @@
           const hasAddress = '{{ has_address }}';
 
           if (hasAddress === 'False') {
-              // Show Bootstrap modal alert
               $('#addressAlertModal').modal('show');
           } else {
               window.location.href = checkoutBtn.href;

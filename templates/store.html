@@ -112,41 +112,41 @@
 
 		<div class="container ">
 			<div class="row">
-				{% for product in page %}
+				{% for item in page %}
 				
 				<div class="col-6 col-md-4">
 				   
 					<div class="card shadow mb-3" style="max-width: 250px; position: relative;">
 		
-						<a href="{% url 'product_detail' pslug=product.slug vslug=product.variants.first.slug %}">
+						<a href="{% url 'product_detail' pslug=item.product.slug vslug=item.first_variant.slug %}">
 							
-							{% if product.variants.first.cover_image %}
+							{% if item.first_variant.cover_image %}
 							
-							<img src="{{ product.variants.first.cover_image.url }}" class="img-fluid p-3" alt="Image" style="min-width: 250px;">
+							<img src="{{ item.first_variant.cover_image.url }}" class="img-fluid p-3" alt="Image" style="min-width: 250px;">
 							{% endif %}
 						</a>
 						<div class="card-body">
-							<h5 class="card-title">{{ product.name }}</h5>
+							<h5 class="card-title">{{ item.product.name }}</h5>
 							<h6 class="card-text">
-								{% if product.variants.first.actual_price == product.variants.first.selling_price %}
+								{% if item.first_variant.actual_price == item.first_variant.selling_price %}
 									<strong style="font-size: 14px;">
 										₹
-										{{ product.variants.first.selling_price }}
+										{{ item.first_variant.selling_price }}
 									</strong>
 								{% else %}
 									<strong style="font-size: 14px;">
 										₹
-										{{ product.variants.first.selling_price }}
+										{{ item.first_variant.selling_price }}
 									</strong>
 									<strong class="text-decoration-line-through" style="font-size: 10px;">
 										MRP : ₹
-										<span>{{ product.variants.first.actual_price }}</span>
+										<span>{{ item.first_variant.actual_price }}</span>
 									</strong>
 								{% endif %}
 								</h6>
 						</div>
 						<span class="wishlist-icon">
-							<h4><a href="{% url 'add_to_wish' pslug=product.slug vslug=product.variants.first.slug %}" class="text-light"><i class="far fa-heart" style="position: absolute; bottom: 60px; right: 30px;"></i></a></h4>
+							<h4><a href="{% url 'add_to_wish' pslug=item.product.slug vslug=item.first_variant.slug %}" class="text-light"><i class="far fa-heart" style="position: absolute; bottom: 60px; right: 30px;"></i></a></h4>
 						</span>
 					</div>
 				</div>
@@ -156,16 +156,16 @@
 		
 		
 
-<div class="mt-4 d-flex justify-content-center" aria-label="Page navigation sample">
-	<ul class="pagination justify-content-center shadow">
-		<li class="page-link" style="cursor: pointer;" {% if page.has_previous %} onclick="pagination('{{ page.previous_page_number }}')"{% endif %}>&laquo;</li>
-		{% for num in page.paginator.page_range %}
-		  <li class="page-link {% if num == page.number %}active{% endif %}" style="cursor: pointer;" onclick="pagination('{{ num }}')">
-		  {{ num }}</li>
-		{% endfor %}
-		<li class="page-link" style="cursor: pointer;" {% if page.has_next %} onclick="pagination('{{ page.next_page_number }}')" {% endif %}>&raquo;</li>    
-	  </ul>
-</div>
+		<div class="mt-4 d-flex justify-content-center" aria-label="Page navigation sample">
+			<ul class="pagination justify-content-center shadow">
+				<li class="page-link" style="cursor: pointer;" {% if page.has_previous %} onclick="pagination('{{ page.previous_page_number }}')"{% endif %}>&laquo;</li>
+				{% for num in page.paginator.page_range %}
+				<li class="page-link {% if num == page.number %}active{% endif %}" style="cursor: pointer;" onclick="pagination('{{ num }}')">
+				{{ num }}</li>
+				{% endfor %}
+				<li class="page-link" style="cursor: pointer;" {% if page.has_next %} onclick="pagination('{{ page.next_page_number }}')" {% endif %}>&raquo;</li>    
+			</ul>
+		</div>
 
 	</main> <!-- col.// -->
 
@@ -177,7 +177,6 @@
 
 
 <script>
-    {% comment %} let baseUrl = window.location.origin + '/store';  {% endcomment %}
 
     let currentUrl = new URL(window.location.href);
 

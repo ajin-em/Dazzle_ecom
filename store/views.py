@@ -16,7 +16,7 @@ from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.views.decorators.cache import cache_page
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 
 
 class Home(View):
@@ -38,13 +38,23 @@ class Home(View):
         cache_key = self.get_cache_key()
         cached_data = cache.get(cache_key)
 
-        if not cached_data:
-            products = Product.objects.select_related('category').all()
+        if True:
             banners = Banner.objects.all()
-
+            products = Product.objects.prefetch_related(
+            Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants'))
+            products_with_first_variants = []
+            
+            for product in products:
+                first_variant = product.all_variants[0]
+                if first_variant:
+                    products_with_first_variants.append({
+                        'product': product,
+                'first_variant': first_variant
+            })
             context = {
                 'products': products,
                 'banners': banners,
+                'products_with_first_variants': products_with_first_variants
             }
             cache.set(cache_key, context)
         else:
@@ -71,8 +81,7 @@ class ProductListing(View):
         get(request): Handles GET requests to display the product listing page.
     """
 
-    # def get_cache_key(self, request):
-    #     return f"product_listing_{request.GET.get('category')}_{request.GET.get('page')}"
+   
     def get_cache_key(self, request):
         category = request.GET.get('category')
         page = request.GET.get('page')
@@ -83,29 +92,43 @@ class ProductListing(View):
         cache_key = self.get_cache_key(request)
         cached_data = cache.get(cache_key)
         search_key = request.GET.get('search')
-        
-        if not cached_data:
-            category = request.GET.get('category')  
-            if page := request.GET.get('page'):
-                pass
-            else:
-                page = 1
 
+        if not cached_data:
+            category = request.GET.get('category')
             if category:
                 item = get_object_or_404(Category, slug=category)
-                products = Product.objects.filter(category=item).select_related('category') 
-            else:    
-                products = Product.objects.all().select_related('category')
-    
-            paginator = Paginator(products, 2)
-            page = paginator.page(page)
+                products = Product.objects.filter(category=item).prefetch_related(
+                    Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants')
+                )
+            else:
+                products = Product.objects.all().prefetch_related(
+                    Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants')
+                )
+
+            products_with_first_variants = []
+            for product in products:
+                if product.all_variants:
+                    products_with_first_variants.append({
+                        'product': product,
+                        'first_variant': product.all_variants[0]
+                    })
+
+            paginator = Paginator(products_with_first_variants, 2)
+            page_number = request.GET.get('page')
+            try:
+                page = paginator.page(page_number)
+            except PageNotAnInteger:
+                page = paginator.page(1)
+            except EmptyPage:
+                page = paginator.page(paginator.num_pages)
+
             context = {
-                'products': products,
                 'page': page,
             }
 
             cache.set(cache_key, context, timeout=900)  # Cache for 15 minutes (900 seconds)
         else:
+            page = cached_data['page']
             context = cached_data
         if search_key:
             products = Product.objects.filter( Q(name__istartswith=search_key) | Q(variants__color_name__istartswith=search_key) )
@@ -130,26 +153,14 @@ class ProductDetailView(View):
     Methods:
         get(request, pslug, vslug): Renders the product detail page based on the product's slug and variant's slug.
     """
-    def get_cache_key(self, pslug, vslug):
-        return f"product_detail_{pslug}_{vslug}"
-
     def get(self, request, pslug, vslug):
-        cache_key = self.get_cache_key(pslug, vslug)
-        cached_data = cache.get(cache_key)
-
-        if not cached_data:
-            product = get_object_or_404(Product, slug=pslug)
-            variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
-            is_in_wishlist = WishItem.objects.filter(product_variant=variant).exists()
-            context = {
-                'variant': variant,
-                'is_in_wishlist': is_in_wishlist,
-            }
-
-            cache.set(cache_key, context)
-        else:
-            context = cached_data
-
+        product = get_object_or_404(Product, slug=pslug)
+        variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
+        is_in_wishlist = WishItem.objects.filter(product_variant=variant).exists()
+        context = {
+            'variant': variant,
+            'is_in_wishlist': is_in_wishlist,
+        }
         return render(request, "product_detail.html", context)
 
 
@@ -244,7 +255,6 @@ class AddToCart(LoginRequiredMixin, View):
             cart_item.save()
 
         return redirect(request.META.get('HTTP_REFERER'))
-
 class RemoveFromCart(View):
     """
     View for removing items from the cart.
@@ -313,6 +323,7 @@ class Decrease_Cart_item(View):
             cart_item.save()
         return redirect(request.META.get('HTTP_REFERER'))
 
+
 class CheckoutView(LoginRequiredMixin, View):
     """
     View for managing the checkout process.
@@ -332,20 +343,17 @@ class CheckoutView(LoginRequiredMixin, View):
         """
         coupon_id = request.GET.get('coupon')
         coupon_discount = 0
-        # if coupon_id:
-        #     coupon = Coupon.objects.get(id=coupon_id)
-        #     coupon_discount = coupon.discount_amount
         if coupon_id:
             coupon = Coupon.objects.get(id=coupon_id)
             coupon_discount = coupon.discount_amount
-            # Save coupon discount to session
             request.session['coupon_discount'] = coupon_discount
         else:
-            # If no coupon is applied, ensure the session variable is empty
             request.session['coupon_discount'] = 0
 
         final_price = request.user.cart.total_selling_price - coupon_discount
         cart = get_object_or_404(Cart, user=request.user)
+        total_selling_price = cart.total_selling_price
+        request.session['total_selling_price'] = cart.total_selling_price
         user_addresses = request.user.user_addresses.all()
         cart.update_totals()
 
@@ -376,16 +384,17 @@ class CheckoutView(LoginRequiredMixin, View):
         cart = request.user.cart
         address_id = request.POST.get('hiddenaddress') 
         payment_method = request.POST.get('pay')
-        # coupon_discount = request.GET.get('applied_coupon_id')  
         coupon_discount = request.session.get('coupon_discount', 0)
-        final_price=cart.total_selling_price - coupon_discount
+        total_selling_price = request.session.get('total_selling_price', 0)
 
-        # address_data = UserAddress.objects.filter(id=address_id).values().first()    
+        final_price=total_selling_price - coupon_discount
+
         address_data = UserAddress.objects.get(id=address_id)    
         order = Order.objects.create(
             user=request.user,
             address=address_data,
             payment_method=payment_method,
+            total_selling_price=total_selling_price,
             final_price=final_price,  
             coupon_price=coupon_discount, 
         )
@@ -407,6 +416,7 @@ class CheckoutView(LoginRequiredMixin, View):
 
         messages.success(request, 'Order Placed Successfully')
         return redirect('order_success')
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ClearCouponView(View):
@@ -456,12 +466,39 @@ class OrderHistoryView(View):
             for item in order.order_items.all():
                 product = Product.objects.get(id=item.product_variant.product_id)
                 all_order_items.append(item)
-        return render(request, 'order_history.html', {'all_order_items': all_order_items,'orders':orders})
+        
+        page_number = request.GET.get('page', 1)
+        paginator = Paginator(all_order_items, 4) 
 
-class UserOrderDetails(View):
-    def get(self, request, slug):
-        item = get_object_or_404(OrderItem, item_slug=slug)
-        return render(request, 'order_details.html', {'item': item})
+        try:
+            paginated_order_items = paginator.page(page_number)
+        except PageNotAnInteger:
+            paginated_order_items = paginator.page(1)
+        except EmptyPage:
+            paginated_order_items = paginator.page(paginator.num_pages)
+
+        return render(request, 'order_history.html', {'all_order_items': paginated_order_items, 'orders':orders})
+
+        
+
+
+class OrderDetails(View):
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        order_items = order.order_items.all()
+
+        context = {
+            'order': order,
+            'order_items': order_items
+        }
+
+        return render(request, 'order_detail.html', context)
+
+class CancelOrderItem(View):
+    def post(self, request, order_item_id):
+        order_item = get_object_or_404(OrderItem, id=order_item_id)
+        order_item.cancel_item()
+        return redirect('order_details', order_id=order_item.order.id)
 
 class WhishList(LoginRequiredMixin, View):
     """

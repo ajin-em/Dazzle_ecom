@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 {% block title %}DAZZLE | Order History{% endblock %}
 {% block content %}
-    {% load static %}
+{% load static %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .cursor-pointer {
+    cursor: pointer;
+    }
+
+    .ccard {
+    transition: background-color 0.3s ease; 
+}
+
+
+.ccard:hover {
+    background-color: #eef0f5; 
+}
+</style>
 
     <div class="container">
         <div class="row">
@@ -14,175 +29,104 @@
                 </div>
             </div>
 
-            <div class="col-9 d-flex my-5">
-                <div class="container bootdey">
-                    <div class="panel panel-default panel-order">
-                        <div class="panel-heading">
-                            <strong>Order history</strong>
+            <div class="col-9 d-flex my-5 ">
+                <div class="container bootdey card border border-0 shadow">
+                    <div class="panel panel-default panel-order ">
+                        <div class="panel-heading text-center mt-4">
+                            <strong class="h3">My Orders</strong>
                         </div>
+                        {% for order in orders %}
                         <div class="panel-body">
-                            {% for order_item in all_order_items %}
-                            Order ID: {{order_item.order.id}}
-                                <div class="row">
-                                    <div class="col-md-1">
-                                        <img src="{{ order_item.product_variant.cover_image.url }}" class="media-object img-thumbnail" />
-                                    </div>
-                                    <div class="col-md-11">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="pull-right">
-                                                    <label class="label label-info">{{ order_item.order.status }}</label>
-                                                </div>
-                                                
-                                               
-                                            </div>
-                                            <div class="col-md-12">
-                                                Order made on: {{ order_item.order.created_at|date:"d F Y" }} 
-                                            </div>
-                                            <hr class="p-0 m-0" style="height: 1px; background-color: black;">
-                                        </div>
-                                    </div>
+                           
+                            <div class="panel panel-default panel-order my-4 px-4">
+                                <div class="panel-heading">
+                                    <p class="text-muted">Order ID: {{ order.id }}</p>
                                 </div>
+                                <div class="panel-body ">
+                                    {% for item in all_order_items %}
+                                    {% if item.order.id == order.id %}
+                                        <a href="{% url 'order_details' order_id=item.order.id %}" class="text-decoration-none text-dark">
+                                        <div class="row g-0 ccard">
+                                            <div class="col-md-3 ps-4  py-3">
+                                                <img src="{{ item.product_variant.cover_image.url }}" class="img-fluid img-thumbnail border border-0" style="max-width: 100px;" alt="Product Image">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="card-body  cursor-pointer">
+                                                    <h5 class="card-title">Product: {{ item.product_variant.product.name }}</h5>
+                                                    <!-- <p class="card-text">Quantity: {{ item.count }}</p> -->
+                                                    <p class="card-text">
+                                                        <h6 class="text-muted">
+                                                            Order status:
+                                                            {% if item.status == 'cancelled' %}
+                                                                <span class="badge badge-danger">{{ item.status }}</span>
+                                                            {% elif item.status == 'processing' %}
+                                                                <span class="badge badge-warning">{{ item.status }}</span>
+                                                            {% elif item.status == 'shipping' %}
+                                                                <span class="badge badge-primary">{{ item.status }}</span>
+                                                            {% elif item.status == 'delivered' %}
+                                                                <span class="badge badge-info">{{ item.status }}</span>
+                                                            {% else %}
+                                                                <span class="badge badge-success">{{ item.status }}</span>
+                                                            {% endif %}
+                                                        </h6>
+                                                    </p>
+                                                    <p class="card-text"><small class="text-muted">Order made on: {{ order.created_at|date:"d F Y" }}</small></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-center cursor-pointer">
+                                                <i class="fa-solid fa-chevron-right fa-xl" style="color: #78bb7b;"></i>
+                                            </div>
+                                        </div>
+                                    </div></a>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="mt-4 d-flex justify-content-center" aria-label="Page navigation sample">
+                <ul class="pagination justify-content-center shadow">
+                    {% if all_order_items.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ all_order_items.previous_page_number }}">{{ all_order_items.previous_page_number }}</a>
+                        </li>
+                    {% endif %}
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ all_order_items.number }}">{{ all_order_items.number }}</a>
+                    </li>
+                    {% if all_order_items.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ all_order_items.next_page_number }}">{{ all_order_items.next_page_number }}</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ all_order_items.paginator.num_pages }}">&raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
+    <script src="https://kit.fontawesome.com/c187aa525a.js" crossorigin="anonymous"></script>
+
+    <script>
+
+        let currentUrl = new URL(window.location.href);
+    
+        let urlParams = new URLSearchParams(currentUrl.search);
+    
+        function pagination(page_number) {
+            urlParams.set('page', page_number);
+            currentUrl.search = urlParams.toString();
+            window.location.href = currentUrl.toString();
+        }
+    </script>
+    
 {% endblock %}
-
-{% comment %} {% extends "base.html" %}
-{% block title %}DAZZLE | Order History{% endblock %}
-{% block content %}
-{% load static %}
-
-
-<div class=" container">
-    <div class="row">
-        <div class="col-3">
-
-            <div class="d-grid gap-2 m-5">
-                <a class="btn border rounded-0  btn-outline-dark shadow  " href="{% url 'profile' %}" role="button">Profile</a>
-                <a class="btn border rounded-0 btn-outline-dark shadow " href="{% url 'manage_address' %}" role="button">Manage Addresses</a>
-                <a class="btn border rounded-0 btn-outline-dark active shadow " href="" role="button">My Orders</a>
-            </div>
-        </div>
-
-        <div class="col-9 d-flext my-5">
-            <div class="container bootdey">
-                <div class="panel panel-default panel-order">
-                    <div class="panel-heading">
-                        <strong>Order history</strong>
-                        <div class="btn-group pull-right">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">Filter history <i class="fa fa-filter"></i></button>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    <li><a href="#">Approved orders</a></li>
-                                    <li><a href="#">Pending orders</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-1"><img src="https://bootdey.com/img/Content/user_3.jpg" class="media-object img-thumbnail" /></div>
-                            <div class="col-md-11">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="pull-right"><label class="label label-danger">rejected</label></div>
-                                        <span><strong>Order name</strong></span> <span class="label label-info">group name</span><br />
-                                        Quantity : 2, cost: $323.13 <br />
-                                        <a data-placement="top" class="btn btn-success btn-xs glyphicon glyphicon-ok" href="#" title="View"></a>
-                                        <a data-placement="top" class="btn btn-danger btn-xs glyphicon glyphicon-trash" href="#" title="Danger"></a>
-                                        <a data-placement="top" class="btn btn-info btn-xs glyphicon glyphicon-usd" href="#" title="Danger"></a>
-                                    </div>
-                                    <div class="col-md-12">order made on: 05/31/2014 by <a href="#">Jane Doe </a></div>
-                                </div>
-                            </div>
-                        </div>
-            
-                        <div class="row">
-                            <div class="col-md-1"><img src="https://bootdey.com/img/Content/user_1.jpg" class="media-object img-thumbnail" /></div>
-                            <div class="col-md-11">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="pull-right"><label class="label label-info">pending</label></div>
-                                        <span><strong>Order name</strong></span> <span class="label label-info">group name</span><br />
-                                        Quantity : 12, cost: $12623.13<br />
-                                        <a data-placement="top" class="btn btn-success btn-xs glyphicon glyphicon-ok" href="#" title="View"></a>
-                                        <a data-placement="top" class="btn btn-danger btn-xs glyphicon glyphicon-trash" href="#" title="Danger"></a>
-                                        <a data-placement="top" class="btn btn-info btn-xs glyphicon glyphicon-usd" href="#" title="Danger"></a>
-                                    </div>
-                                    <div class="col-md-12">order made on: 06/12/2014 by <a href="#">Jane Doe </a></div>
-                                </div>
-                            </div>
-                        </div>
-            
-                        <div class="row">
-                            <div class="col-md-1"><img src="https://bootdey.com/img/Content/user_3.jpg" class="media-object img-thumbnail" /></div>
-                            <div class="col-md-11">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="pull-right"><label class="label label-success">Approved</label></div>
-                                        <span><strong>Order name</strong></span> <span class="label label-info">group name</span><br />
-                                        Quantity : 4, cost: $523.13<br />
-                                        <a data-placement="top" class="btn btn-success btn-xs glyphicon glyphicon-ok" href="#" title="View"></a>
-                                        <a data-placement="top" class="btn btn-danger btn-xs glyphicon glyphicon-trash" href="#" title="Danger"></a>
-                                        <a data-placement="top" class="btn btn-info btn-xs glyphicon glyphicon-usd" href="#" title="Danger"></a>
-                                    </div>
-                                    <div class="col-md-12">order made on: 06/20/2014 by <a href="#">Jane Doe</a></div>
-                                </div>
-                            </div>
-                        </div>
-            
-                        <div class="row">
-                            <div class="col-md-1"><img src="https://bootdey.com/img/Content/user_2.jpg" class="media-object img-thumbnail" /></div>
-                            <div class="col-md-11">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="pull-right"><label class="label label-info">pending</label></div>
-                                        <span><strong>Order name</strong></span> <span class="label label-info">group name</span><br />
-                                        Quantity : 4, cost: $523.13<br />
-                                        <a data-placement="top" class="btn btn-success btn-xs glyphicon glyphicon-ok" href="#" title="View"></a>
-                                        <a data-placement="top" class="btn btn-danger btn-xs glyphicon glyphicon-trash" href="#" title="Danger"></a>
-                                        <a data-placement="top" class="btn btn-info btn-xs glyphicon glyphicon-usd" href="#" title="Danger"></a>
-                                    </div>
-                                    <div class="col-md-12">order made on: 06/20/2014 by <a href="#">Jane Doe</a></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-
-
-        </div>
-
-
-    </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-       
-       
-{% endblock %} {% endcomment %}
-
 

@@ -466,13 +466,11 @@
     }
 }
 
-// Add an event listener to update the hidden input when a coupon is selected
-// const couponRadios = document.querySelectorAll('.coupon-radio');
+
 couponRadios.forEach(radio => {
     radio.addEventListener('change', updateAppliedCouponId);
 });
 
-// Call the function initially to set the applied coupon ID if there's a pre-selected coupon
 updateAppliedCouponId();
     </script>
 

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}DAZZLE | Home{% endblock %}
+{% block content %}
+{% load static %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-xl-8">
+            {% for item  in order_items %}
+            <div class="card border shadow-none">
+                <div class="card-body">
+
+                    <div class="d-flex align-items-start border-bottom pb-3">
+                        <div class="me-4">
+                            <img src="{{item.product_variant.cover_image.url}}" alt="" class="avatar-lg rounded" style="max-width:6rem";>
+                        </div>
+                        <div class="flex-grow-1 align-self-center overflow-hidden">
+                            <div>
+                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark">{{item.product_variant.product.name}}</a></h5>
+                                {% comment %} <p class="text-muted mb-0">
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                    <i class="fa-solid fa-star-half text-warning"></i>
+                                </p> {% endcomment %}
+                                <p class="mb-0 mt-1">Color : <span class="fw-medium">{{item.product_variant.color_name}}</span></p>
+                                <small class="mb-0 mt-1">{{item.product_variant.product.description}}</small>
+                            </div>
+                        </div>
+                       
+                    </div>
+
+                    <div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mt-3">
+                                    <p class="text-muted mb-1">Price</p>
+                                    <h6 class=" mt-1"><span class="text-muted me-2"><del class="font-size-16 fw-normal">₹ {{item.product_variant.actual_price}}</del></span>₹ {{item.product_variant.selling_price}}</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mt-3">
+                                    <p class="text-muted mb-2">Quantity</p>
+                                    <div class="d-inline-flex">
+                                        {{item.count}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mt-3">
+                                    <p class="text-muted mb-2">Total</p>
+                                    <h6>₹ {{item.total_selling_price}}</h6>
+                                </div>
+                            </div>
+                            {% comment %} <div class="col-md-3 d-flex align-items-center">
+                                {% if item.status == 'cancelled' %}
+                                    <p class="text-danger">Order Cancelled</p>
+                                {% else %}
+                                    <form action="{% url 'cancel_order_item' order_item_id=item.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="submit" class="btn text-danger" value="Cancel Item">
+                                    </form>
+                                {% endif %}
+                            </div> {% endcomment %}
+                            <div class="col-md-3 d-flex align-items-center">
+                                {% if item.status == 'cancelled' %}
+                                    <p class="text-danger">Order Cancelled</p>
+                                {% elif item.status == 'delivered' %}
+                                    <p class="text-sucess">Order Delivered</p>
+                                {% else %}
+                                    <form id="cancelForm_{{ item.id }}" action="{% url 'cancel_order_item' order_item_id=item.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="button" class="btn text-danger cancel-btn" value="Cancel Item" data-item-id="{{ item.id }}">
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+            <!-- end card -->
+        </div>
+
+        <div class="col-xl-4">
+            <div class="mt-5 mt-lg-0">
+                <div class="card border shadow-none">
+                    <div class="card-header bg-transparent border-bottom py-3 px-4">
+                        <h5 class="font-size-16 mb-0">Order Summary</h5>
+                        <span class="float-end text-muted">#{{order.id}}</span>
+                        <span class="float-end">Payment Method : {{order.payment_method}}</span>
+                    </div>
+                    <div class="card-body p-4 pt-2">
+
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td>Sub Total :</td>
+                                        <td class="text-center">₹ {{order.total_selling_price}}</td>
+                                    </tr>
+                                   
+                                    <tr>
+                                        <td>Delivery Charge :</td>
+                                        <td class="text-center text-info">FREE</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Coupon Discount : </td>
+                                        <td class="text-center text-success">- ₹ {{order.coupon_price }} </td>
+                                    </tr>
+                                    <tr class="bg-light">
+                                        <th>Total :</th>
+                                        <td class="text-center">
+                                            <span class="fw-bold">
+                                                ₹ {{order.final_price }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- end table-responsive -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end row -->
+    
+</div>
+<script src="https://kit.fontawesome.com/c187aa525a.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cancelButtons = document.querySelectorAll('.cancel-btn');
+        
+        cancelButtons.forEach((button) => {
+            button.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Are you sure you want to cancel this item?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, cancel it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.getElementById(`cancelForm_${itemId}`);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
