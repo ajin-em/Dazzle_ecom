@@ -9,7 +9,9 @@ def count(request):
         user_wish = WishList.objects.filter(user=request.user).first()
         
         if user_cart:
-            cart_count = user_cart.total_count
+            # cart_count = user_cart.total_count
+            cart_count = user_cart.cart_items.count()
+
         
         if user_wish:
             wish_count = user_wish.wish_items.count()

@@ -53,16 +53,7 @@
                                     <h6>₹ {{item.total_selling_price}}</h6>
                                 </div>
                             </div>
-                            {% comment %} <div class="col-md-3 d-flex align-items-center">
-                                {% if item.status == 'cancelled' %}
-                                    <p class="text-danger">Order Cancelled</p>
-                                {% else %}
-                                    <form action="{% url 'cancel_order_item' order_item_id=item.id %}" method="post">
-                                        {% csrf_token %}
-                                        <input type="submit" class="btn text-danger" value="Cancel Item">
-                                    </form>
-                                {% endif %}
-                            </div> {% endcomment %}
+                          
                             <div class="col-md-3 d-flex align-items-center">
                                 {% if item.status == 'cancelled' %}
                                     <p class="text-danger">Order Cancelled</p>
@@ -123,6 +114,15 @@
                         </div>
                         <!-- end table-responsive -->
                     </div>
+                </div>
+            </div>
+
+            <div class="card border shadow-none mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Shipping Address</h5>
+                    <p>{{ order.address.first_name }} {{ order.address.last_name }}</p>
+                    <p>{{ order.address.mobile }}, {{ order.address.email }}</p>
+                    <p>{{ order.address.address }}, {{ order.address.place }}, {{ order.address.landmark }}, {{ order.address.place }}-{{ order.address.pincode }}, {{ order.address.district }}, {{ order.address.state }}</p>
                 </div>
             </div>
         </div>

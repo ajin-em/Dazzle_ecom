@@ -2,6 +2,64 @@
 {% block title %}DAZZLE | Address management{% endblock %}
 {% block content %}
 {% load static %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+
+<style>
+.button {
+ --color: #78BB7B;
+ background-color: transparent;
+ border-radius: .3em;
+ position: relative;
+ overflow: hidden;
+ cursor: pointer;
+ transition: .5s;
+ font-weight: 200;
+ font-size: 17px;
+ border: 1px solid;
+ font-family: inherit;
+ text-transform: uppercase;
+ color: var(--color);
+ z-index: 1;
+}
+
+.button::before, .button::after {
+ content: '';
+ display: block;
+ width: 50px;
+ height: 50px;
+ transform: translate(-50%, -50%);
+ position: absolute;
+ border-radius: 50%;
+ z-index: -1;
+ background-color: var(--color);
+ transition: 1s ease;
+}
+
+.button::before {
+ top: -1em;
+ left: -1em;
+}
+
+.button::after {
+ left: calc(100% + 1em);
+ top: calc(100% + 1em);
+}
+
+.button:hover::before, .button:hover::after {
+ height: 410px;
+ width: 410px;
+}
+
+.button:hover {
+ color: rgb(255, 255, 255);
+}
+
+.button:active {
+ filter: brightness(.8);
+}
+
+</style>
 
 <div class=" container">
     <div class="row">
@@ -16,7 +74,7 @@
         </div>
         <div class="col-9">
         <div class="d-flex justify-content-end my-1 ">
-            <button class="btn btn-outline-dark btn-sm mt-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#add_address" type="button">Add Address</button>
+            <button class="btn button  btn-sm mt-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#add_address" type="button"><i class="fa-solid fa-plus"></i> Address</button>
           </div>
           {% for address in addresses %}
             <div class="border rounded-2 px-4 py-2 my-2 shadow ">
@@ -167,6 +225,7 @@
         </div>
         </div>
     </div>
+    <script src="https://kit.fontawesome.com/c187aa525a.js" crossorigin="anonymous"></script>
           <script>
           function fetchPincodeData(pincodeInput, helptext, postoffice, district, state) {
             const dropdown = document.getElementById(postoffice);

@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import *
 from django.contrib.auth.models import Group
 from django_celery_results.admin import TaskResult, GroupResult
+from django import forms
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name']
@@ -23,12 +24,14 @@ class BannerAdmin(admin.ModelAdmin):
 class CouponAdmin(admin.ModelAdmin):
     list_display = ['coupon_code']
 
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
+
     fields = ['product_variant', 'count', 'total_selling_price', 'total_actual_price', 'status']
     readonly_fields = ['product_variant', 'count', 'total_selling_price', 'total_actual_price']
     list_editable = ['status']
-    can_delete = False  # Prevents deletion of existing order items
+    can_delete = False  
     extra = 0
     max_num = 0
 
@@ -59,6 +62,7 @@ class OrderItemInline(admin.TabularInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'created_at', 'updated_at', 'payment_method', 'total_selling_price', 'final_price', 'coupon_price')
     readonly_fields = ('user', 'created_at', 'updated_at', 'payment_method', 'total_selling_price', 'final_price', 'coupon_price')
@@ -66,7 +70,8 @@ class OrderAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
+    
+   
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Product_Variant, ProductVariantAdmin)
 admin.site.register(Banner, BannerAdmin)

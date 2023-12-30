@@ -17,14 +17,24 @@
                     {{ wish_item.product_variant.product.name }}
                 </h5>
                 <a href="{% url 'product_detail' pslug=wish_item.product_variant.product.slug vslug=wish_item.product_variant.slug  %}">
-                    <img src="{{ wish_item.product_variant.cover_image.url }}" class="card-img-top img-fluid p-3"
-                        alt="{{ wish_item.product_variant.product.name }}" style="max-height: 10rem;">
+                    <img src="{{ wish_item.product_variant.cover_image.url }}" class="card-img-top img-fluid p-2"
+                        alt="{{ wish_item.product_variant.product.name }}" style="max-height: 20rem;">
                 </a>
                 <p class="card-text" style="font-size: 0.9rem;">Color: {{ wish_item.product_variant.color_name }}</p>
-                <p class="card-text pb-3" style="font-size: 0.9rem; display: flex;">
-                    ₹ {{ wish_item.product_variant.selling_price }}
-                    <small class="ps-1  text-decoration-line-through">MRP: ${{ wish_item.product_variant.actual_price}}</small>
-                </p>
+                <div class="mb-5">
+                {% if wish_item.product_variant.actual_price == wish_item.product_variant.selling_price %}
+                    <strong style="font-size: 0.9rem;">
+                        ₹ {{ wish_item.product_variant.selling_price }}
+                    </strong>
+                {% else %}
+                    <strong style="font-size: 0.9rem;" class="mx-1">
+                        ₹ {{ wish_item.product_variant.selling_price }}
+                    </strong>
+                    <strong class="text-decoration-line-through" style="font-size: 0.9rem;">
+                        MRP : ₹ <span>{{ wish_item.product_variant.actual_price }}</span>
+                    </strong>
+                {% endif %}
+                </div>
                 <!-- Add more details you want to display -->
                 <h5>
                 <a href="{% url 'remove_from_wish' pslug=wish_item.product_variant.product.slug vslug=wish_item.product_variant.slug %}"
@@ -32,10 +42,15 @@
                     <i class="fa fa-heart" aria-hidden="true" style="color: red;"></i>
                 </a>
                 </h5>
-                <a href="{% url 'add_to_cart' pslug=wish_item.product_variant.product.slug vslug=wish_item.product_variant.slug %}"
+                
+                {% if wish_item.product_variant.stock > 0 %}
+                    <a href="{% url 'add_to_cart' pslug=wish_item.product_variant.product.slug vslug=wish_item.product_variant.slug %}"
                     class="btn btn-outline-success btn-sm" style="position: absolute; bottom: 15px; right: 20px;">
                     Add to Cart
-                </a>
+                    </a>                
+                {% else %}
+                    <button type="button" class="btn btn-outline-dark btn-sm" disabled style="position: absolute; bottom: 15px; right: 20px;">Out of Stock</button>
+                {% endif %}
             </div>
         </div>
     </div>

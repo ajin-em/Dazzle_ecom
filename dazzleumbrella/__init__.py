@@ -1,4 +1,3 @@
-# from core.tasks import send_otp_email
+from .celery import app as celery_app
 
-
-# __all__ = ("celery_app",)
+__all__ = ('celery_app',)

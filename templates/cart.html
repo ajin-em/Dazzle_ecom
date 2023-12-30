@@ -15,9 +15,66 @@
   #addressAlertModal .modal-body {
       box-shadow: none; 
   }
+
+
+    .button {
+ --color: #222121;
+ background-color: transparent;
+ border-radius: .3em;
+ position: relative;
+ overflow: hidden;
+ cursor: pointer;
+ transition: .5s;
+ font-weight: 200;
+ font-size: 17px;
+ border: 1px solid;
+ font-family: inherit;
+ text-transform: uppercase;
+ color: var(--color);
+ z-index: 1;
+}
+
+.button::before, .button::after {
+ content: '';
+ display: block;
+ width: 50px;
+ height: 50px;
+ transform: translate(-50%, -50%);
+ position: absolute;
+ border-radius: 50%;
+ z-index: -1;
+ background-color: var(--color);
+ transition: 1s ease;
+}
+
+.button::before {
+ top: -1em;
+ left: -1em;
+}
+
+.button::after {
+ left: calc(100% + 1em);
+ top: calc(100% + 1em);
+}
+
+.button:hover::before, .button:hover::after {
+ height: 410px;
+ width: 410px;
+}
+
+.button:hover {
+ color: rgb(255, 255, 255);
+}
+
+.button:active {
+ filter: brightness(.8);
+}
+
 </style>
+{% comment %} <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"> {% endcomment %}
 
 <div class="container">
+
 
   {% if cart_items %}
   <div class="row ">
@@ -101,7 +158,8 @@
             </div>
           </div>
           <div class="panel-footer d-flex">
-            <a href="{% url 'checkout' %}"  id="checkout-btn" class="btn btn-outline-dark pull-right ms-auto">Checkout<span
+            <a href="{% url 'checkout' %}"  id="checkout-btn" class=" button btn  pull-right ms-auto">Checkout <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 53 58" height="15" width="15">
+              <path stroke-width="9" stroke="currentColor" d="M44.25 36.3612L17.25 51.9497C11.5833 55.2213 4.5 51.1318 4.50001 44.5885L4.50001 13.4115C4.50001 6.86824 11.5833 2.77868 17.25 6.05033L44.25 21.6388C49.9167 24.9104 49.9167 33.0896 44.25 36.3612Z"></path><span
                 class="glyphicon glyphicon-chevron-right"></span></a>
           </div>
         </div>
@@ -111,12 +169,13 @@
   {% else %}
   <div class="row">
     <div class="content text-center">
-      <p class="display-6 my-5">Your cart is empty!</p>
-      <a href="{% url 'store' %}" role="button" class="btn btn-tertiary">
-        Continue Shopping
-      </a>
+        <p class="display-6 my-5">Your cart is empty!!</p>
+        <a href="{% url 'wish' %}" id="checkout-btn" class="button btn pull-right ms-auto">Add FROM WISHLIST</a>
+        <div class="mt-3"> <!-- Adjust margin-top as needed -->
+            <a href="{% url 'store' %}" role="button" class="btn btn-tertiary text-success">Continue Shopping</a>
+        </div>
     </div>
-  </div>
+</div>
 {% endif %}
 </div>
 
@@ -164,6 +223,30 @@
       });
   });
 </script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% comment %} <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ message }}"
+                }).then(function() {
+                    window.location.href = document.referrer;
+                });
+            {% elif message.tags == 'error' %}
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: "{{ message }}"
+                }).then(function() {
+                    window.location.href = document.referrer;
+                });
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</script> {% endcomment %}
 
 {% endblock %}

@@ -304,9 +304,10 @@ class OrderItem(models.Model):
         self.product_variant.stock += self.count 
         self.product_variant.save()
         self.save(update_fields=['status'])
+    
 
-
-
+  
+  
 class WishList(models.Model):
     """
     Represents a wishlist for a user.

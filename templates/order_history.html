@@ -35,7 +35,8 @@
                         <div class="panel-heading text-center mt-4">
                             <strong class="h3">My Orders</strong>
                         </div>
-                        {% for order in orders %}
+                        {% for order in page %}
+
                         <div class="panel-body">
                            
                             <div class="panel panel-default panel-order my-4 px-4">
@@ -43,8 +44,7 @@
                                     <p class="text-muted">Order ID: {{ order.id }}</p>
                                 </div>
                                 <div class="panel-body ">
-                                    {% for item in all_order_items %}
-                                    {% if item.order.id == order.id %}
+                                    {% for item in order.order_items.all %}
                                         <a href="{% url 'order_details' order_id=item.order.id %}" class="text-decoration-none text-dark">
                                         <div class="row g-0 ccard">
                                             <div class="col-md-3 ps-4  py-3">
@@ -53,7 +53,6 @@
                                             <div class="col-md-8">
                                                 <div class="card-body  cursor-pointer">
                                                     <h5 class="card-title">Product: {{ item.product_variant.product.name }}</h5>
-                                                    <!-- <p class="card-text">Quantity: {{ item.count }}</p> -->
                                                     <p class="card-text">
                                                         <h6 class="text-muted">
                                                             Order status:
@@ -78,7 +77,6 @@
                                             </div>
                                         </div>
                                     </div></a>
-                                    {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
@@ -90,24 +88,26 @@
 
             <div class="mt-4 d-flex justify-content-center" aria-label="Page navigation sample">
                 <ul class="pagination justify-content-center shadow">
-                    {% if all_order_items.has_previous %}
-                        <li class="page-item">
+                    {% if page.has_previous %}
+
+                        {% comment %} <li class="page-item">
                             <a class="page-link" href="?page=1">&laquo;</a>
-                        </li>
+                        </li> {% endcomment %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ all_order_items.previous_page_number }}">{{ all_order_items.previous_page_number }}</a>
+                            <a class="page-link" href="?page={{ page.previous_page_number }}">{{ page.previous_page_number }}</a>
+
                         </li>
                     {% endif %}
                     <li class="page-item active">
-                        <a class="page-link" href="?page={{ all_order_items.number }}">{{ all_order_items.number }}</a>
+                        <a class="page-link" href="?page={{ page.number }}">{{ page.number }}</a>
                     </li>
-                    {% if all_order_items.has_next %}
+                    {% if page.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ all_order_items.next_page_number }}">{{ all_order_items.next_page_number }}</a>
+                            <a class="page-link" href="?page={{ page.next_page_number }}">{{ page.next_page_number }}</a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ all_order_items.paginator.num_pages }}">&raquo;</a>
-                        </li>
+                        {% comment %} <li class="page-item">
+                            <a class="page-link" href="?page={{ page.paginator.num_pages }}">&raquo;</a>
+                        </li> {% endcomment %}
                     {% endif %}
                 </ul>
             </div>

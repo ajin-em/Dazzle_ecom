@@ -1,255 +1,66 @@
-# class CheckoutView(LoginRequiredMixin, View):
-#     """
-#     View for managing the checkout process.
+# def get(self, request):
+    #     cache_key = self.get_cache_key(request)
+    #     cached_data = cache.get(cache_key)
+    #     search_key = request.GET.get('search')
+    #     print(search_key)
 
-#     Methods:
-#         get(request): Handles GET requests for the checkout process.
-#     """
-#     def get(self, request):
-#         """
-#         Handles the checkout process by calculating the final price, applying coupons, and rendering the checkout page.
+    #     if search_key:
+    #             products = Product.objects.filter(Q(name__istartswith=search_key) | Q(variants__color_name__istartswith=search_key))
 
-#         Args:
-#             request: The HTTP request.
-
-#         Returns:
-#             Renders the checkout page with necessary context data for the checkout process.
-#         """
-#         coupon_id = request.GET.get('coupon')
-#         coupon_discount = 0
-#         # if coupon_id:
-#         #     coupon = Coupon.objects.get(id=coupon_id)
-#         #     coupon_discount = coupon.discount_amount
-#         if coupon_id:
-#             coupon = Coupon.objects.get(id=coupon_id)
-#             coupon_discount = coupon.discount_amount
-#             # Save coupon discount to session
-#             request.session['coupon_discount'] = coupon_discount
-#         else:
-#             # If no coupon is applied, ensure the session variable is empty
-#             request.session['coupon_discount'] = 0
-
-#         final_price = request.user.cart.total_selling_price - coupon_discount
-#         cart = get_object_or_404(Cart, user=request.user)
-#         user_addresses = request.user.user_addresses.all()
-#         cart.update_totals()
-
-#         if not user_addresses:
-#             return redirect('cart')
-#         coupons = Coupon.objects.all()        
-#         user_address = user_addresses.first()
-#         cart_items = cart.cart_items.all().order_by('id').select_related('product_variant')
-#         coupons = [coupon for coupon in coupons if coupon.minimum_amount <= final_price]   
-
-#         client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
-#         payment = client.order.create(dict(amount = final_price*100, currency = "INR", payment_capture = 1))   
-        
-#         context = {
-#                     'cart': cart,
-#                     'user_addresses': user_addresses,
-#                     'cart_items': cart_items,
-#                     'coupons': coupons,
-#                     'coupon_discount':coupon_discount,
-#                     'final_price': final_price,
-#                     'payment': payment,
-
-#                   }
-
-#         return render(request, 'checkout.html', context)
-
-#     def post(self, request):
-#         cart = request.user.cart
-#         address_id = request.POST.get('hiddenaddress') 
-#         payment_method = request.POST.get('pay')
-#         # coupon_discount = request.GET.get('applied_coupon_id')  
-#         coupon_discount = request.session.get('coupon_discount', 0)
-#         final_price=cart.total_selling_price - coupon_discount
-
-#         # address_data = UserAddress.objects.filter(id=address_id).values().first()    
-#         address_data = UserAddress.objects.get(id=address_id)    
-#         order = Order.objects.create(
-#             user=request.user,
-#             address=address_data,
-#             payment_method=payment_method,
-#             final_price=final_price,  
-#             coupon_price=coupon_discount, 
-#         )
-
-#         for item in cart.cart_items.all():
-#             product_variant = item.product_variant
-#             product_variant.stock -= item.count
-#             product_variant.save()
-
-#             OrderItem.objects.create(
-#                 order=order,
-#                 count=item.count,
-#                 total_actual_price=item.total_actual_price,
-#                 total_selling_price=item.total_selling_price,
-#                 product_variant=product_variant,
-#             )
-
-#         cart.cart_items.all().delete()
-
-#         messages.success(request, 'Order Placed Successfully')
-#         return redirect('order_success')
-
-===================================================================
-class ProductListing(View):
-    """
-    View for rendering the product listing page.
-
-    This view displays a list of products available in the store.
-
-    Attributes:
-        None
-
-    Methods:
-        get(request): Handles GET requests to display the product listing page.
-    """
-
-   
-    def get_cache_key(self, request):
-        category = request.GET.get('category')
-        page = request.GET.get('page')
-        cache_key = f"product_listing_{category}_{page}"
-        return cache_key
-
-    def get(self, request):
-        cache_key = self.get_cache_key(request)
-        cached_data = cache.get(cache_key)
-        search_key = request.GET.get('search')
-        
-        if not cached_data:
-            category = request.GET.get('category')  
-            if page := request.GET.get('page'):
-                pass
-            else:
-                page = 1
-
-            # if category:
-            #     item = get_object_or_404(Category, slug=category)
-            #     products = Product.objects.filter(category=item).select_related('category') 
-            # else:    
-            #     products = Product.objects.all().select_related('category')
-            if category:
-                item = get_object_or_404(Category, slug=category)
-                products = Product.objects.filter(category=item).prefetch_related(
-                    Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants')
-                )
-            else:
-                products = Product.objects.all().prefetch_related(
-                    Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants')
-                )
-            products_with_first_variants = []
+    #     if True:
+    #         category = request.GET.get('category')
+    #         if category:
+    #             item = get_object_or_404(Category, slug=category)
+    #             products = Product.objects.filter(category=item).prefetch_related(
+    #                 Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants')
+    #             )
+    #         else:
+    #             products = Product.objects.all().prefetch_related(
+    #                 Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants')
+    #             )
             
-            for product in products:
-                first_variant = product.all_variants[0]
-                if first_variant:
-                    products_with_first_variants.append({
-                        'product': product,
-                'first_variant': first_variant
-            })
-            paginator = Paginator(products, 2)
-            page = paginator.page(page)
-            context = {
-                'products': products,
-                'page': page,
-                'products_with_first_variants': products_with_first_variants
-            }
+    #         products_with_first_variants = []
+    #         for product in products:
+    #             if product.all_variants:
+    #                 products_with_first_variants.append({
+    #                     'product': product,
+    #                     'first_variant': product.all_variants[0]
+    #                 })
+          
+    #         paginator = Paginator(products_with_first_variants, 2)
+    #         page_number = request.GET.get('page')
+    #         try:
+    #             page = paginator.page(page_number)
+    #         except PageNotAnInteger:
+    #             page = paginator.page(1)
+    #         except EmptyPage:
+    #             page = paginator.page(paginator.num_pages)
 
-            cache.set(cache_key, context, timeout=900)  # Cache for 15 minutes (900 seconds)
-        else:
-            context = cached_data
-        if search_key:
-            products = Product.objects.filter( Q(name__istartswith=search_key) | Q(variants__color_name__istartswith=search_key) )
-            
+    #         context = {
+    #             'page': page,
+    #         }
 
-        return render(request, 'store.html', context)
-
-        =============================================================
-        html for product listing 
-
-
+    #         cache.set(cache_key, context, timeout=900)  # Cache for 15 minutes (900 seconds)
+    #     else:
+    #         page = cached_data['page']
+    #         context = cached_data
         
-{% extends "base.html" %}
-{% block title %}DAZZLE | Store{% endblock %}
-{% block content %}
-{% load static %}
+    #     return render(request, 'store.html', context)
 
 
-<!-- ========================= SECTION PAGETOP ========================= -->
-<section class="section-pagetop bg">
-<div class="container">
-	<h2 class="title-page text-center ">OUR STORE</h2>
-	
-</div> <!-- container //  -->
-</section>
-<!-- ========================= SECTION INTRO END// ========================= -->
 
-<!-- ========================= SECTION CONTENT ========================= -->
-<section class="section-content padding-y">
-<div class="container">
 
-<div class="row">
-	<aside class="col-md-2">
-		
-<div class="card shadow">
-	<article class="filter-group">
-		<header class="card-header">
-			<a href="#" data-toggle="collapse" data-target="#collapse_4" aria-expanded="true" class="">
-				<i class="icon-control fa fa-chevron-down"></i>
-				<h6 class="title">Colors </h6>
-			</a>
-		</header>
-		<div class="filter-content collapse show" id="collapse_4" style="">
-			<div class="card-body">
-			  <label class="checkbox-btn">
-			    <input type="checkbox">
-			    <span class="btn btn-light"> Red </span>
-			  </label>
 
-			  <label class="checkbox-btn">
-			    <input type="checkbox">
-			    <span class="btn btn-light"> Blue </span>
-			  </label>
 
-			  <label class="checkbox-btn">
-			    <input type="checkbox">
-			    <span class="btn btn-light"> Black </span>
-			  </label>
 
-			  <label class="checkbox-btn">
-			    <input type="checkbox">
-			    <span class="btn btn-light"> Sky Blue </span>
-			  </label>
 
-			  <label class="checkbox-btn">
-			    <input type="checkbox">
-			    <span class="btn btn-light"> Brown </span>
-			  </label>
 
-			  <label class="checkbox-btn">
-			    <input type="checkbox">
-			    <span class="btn btn-light"> Navy Blue </span>
-			  </label>
-		</div><!-- card-body.// -->
-		</div>
-	</article> <!-- filter-group .// --> 
-	 <article class="filter-group">
-		<header class="card-header">
-			<a href="#" data-toggle="collapse" data-target="#collapse_3" aria-expanded="true" class="">
-				<i class="icon-control fa fa-chevron-down"></i>
-				<h6 class="title">Price range </h6>
-			</a>
-		</header>
-		<div class="filter-content collapse show" id="collapse_3" style="">
-			<div class="card-body">
-				
-				<div class="form-row">
-				<div class="form-group col-md-6">
+
+
+	{% comment %} <div class="form-group col-md-6">
 				  <label>Min</label>
 				  <!-- <input class="form-control" placeholder="$0" type="number"> -->
-				  	<select class="mr-2 form-control">
+				  	<select class="mr-2 form-control" name="min_price">
 						<option value="0">₹0</option>
 						<option value="50">₹50</option>
 						<option value="100">₹100</option>
@@ -261,7 +72,7 @@ class ProductListing(View):
 				</div>
 				<div class="form-group text-right col-md-6">
 				  <label>Max</label>
-				  	<select class="mr-2 form-control">
+				  	<select class="mr-2 form-control" name="max_price">
 						<option value="50">₹50</option>
 						<option value="100">₹100</option>
 						<option value="150">₹150</option>
@@ -270,21 +81,22 @@ class ProductListing(View):
 						<option value="1000">₹1000</option>
 						<option value="2000">₹2000+</option>
 					</select>
-				</div>
-				</div> <!-- form-row.// -->
-				<button class="btn btn-block btn-outline-success">Apply</button>
-			</div><!-- card-body.// -->
-		</div>
-	</article> <!-- filter-group .// -->
-	
-</div> <!-- card.// -->
+				</div> {% endcomment %}
 
-	</aside> <!-- col.// -->
-	<main class="col-md-9">
 
-		<div class="container ">
+
+
+
+
+
+
+
+
+
+
+				{% comment %} <div class="container ">
 			<div class="row">
-				{% for item in products_with_first_variants %}
+				{% for item in page %}
 				
 				<div class="col-6 col-md-4">
 				   
@@ -324,44 +136,4 @@ class ProductListing(View):
 				</div>
 				{% endfor %}
 							</div>
-		</div>
-		
-		
-
-		<div class="mt-4 d-flex justify-content-center" aria-label="Page navigation sample">
-			<ul class="pagination justify-content-center shadow">
-				<li class="page-link" style="cursor: pointer;" {% if page.has_previous %} onclick="pagination('{{ page.previous_page_number }}')"{% endif %}>&laquo;</li>
-				{% for num in page.paginator.page_range %}
-				<li class="page-link {% if num == page.number %}active{% endif %}" style="cursor: pointer;" onclick="pagination('{{ num }}')">
-				{{ num }}</li>
-				{% endfor %}
-				<li class="page-link" style="cursor: pointer;" {% if page.has_next %} onclick="pagination('{{ page.next_page_number }}')" {% endif %}>&raquo;</li>    
-			</ul>
-		</div>
-
-	</main> <!-- col.// -->
-
-</div>
-
-</div> <!-- container .//  -->
-</section>
-<!-- ========================= SECTION CONTENT END// ========================= -->
-
-
-<script>
-
-    let currentUrl = new URL(window.location.href);
-
-    let urlParams = new URLSearchParams(currentUrl.search);
-
-    function pagination(page_number) {
-        urlParams.set('page', page_number);
-        currentUrl.search = urlParams.toString();
-        window.location.href = currentUrl.toString();
-    }
-</script>
-
-
-{% endblock content %}
-
-
+		</div> {% endcomment %}

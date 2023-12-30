@@ -22,13 +22,160 @@
 </head>
 
 <body class="bg-light">
+<style>
+    .button {
+ --color: #222121;
+ background-color: transparent;
+ border-radius: .3em;
+ position: relative;
+ overflow: hidden;
+ cursor: pointer;
+ transition: .5s;
+ font-weight: 200;
+ font-size: 17px;
+ border: 1px solid;
+ font-family: inherit;
+ text-transform: uppercase;
+ color: var(--color);
+ z-index: 1;
+}
+
+.button::before, .button::after {
+ content: '';
+ display: block;
+ width: 50px;
+ height: 50px;
+ transform: translate(-50%, -50%);
+ position: absolute;
+ border-radius: 50%;
+ z-index: -1;
+ background-color: var(--color);
+ transition: 1s ease;
+}
+
+.button::before {
+ top: -1em;
+ left: -1em;
+}
+
+.button::after {
+ left: calc(100% + 1em);
+ top: calc(100% + 1em);
+}
+
+.button:hover::before, .button:hover::after {
+ height: 410px;
+ width: 410px;
+}
+
+.button:hover {
+ color: rgb(255, 255, 255);
+}
+
+.button:active {
+ filter: brightness(.8);
+}
+
+.Btnn {
+  width: 130px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #46c24c;
+  border: none;
+  color: white;
+  font-weight: 600;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.103);
+  position: relative;
+  overflow: hidden;
+  transition-duration: .3s;
+}
+
+.svgIcon {
+  width: 16px;
+}
+
+.svgIcon path {
+  fill: white;
+}
+
+.Btnn::before {
+  width: 130px;
+  height: 130px;
+  position: absolute;
+  content: "";
+  background-color: rgb(14, 21, 201);
+  border-radius: 50%;
+  left: -100%;
+  top: 0;
+  transition-duration: .3s;
+  mix-blend-mode: difference;
+}
+
+.Btnn:hover::before {
+  transition-duration: .3s;
+  transform: translate(100%,-50%);
+  border-radius: 0;
+}
+
+.Btnn:active {
+  transform: translate(5px,5px);
+  transition-duration: .3s;
+}
+
+
+.loader {
+  position: relative;
+}
+
+.loader span {
+  position: absolute;
+  color: #fff;
+  transform: translate(-50%, -50%);
+  font-size: 38px;
+  letter-spacing: 5px;
+}
+
+.loader span:nth-child(1) {
+  color: transparent;
+  -webkit-text-stroke: 0.3px rgb(19, 60, 226);
+}
+
+.loader span:nth-child(2) {
+  color: rgb(128, 198, 255);
+  -webkit-text-stroke: 1px rgb(19, 134, 229);
+  animation: uiverse723 3s ease-in-out infinite;
+}
+
+@keyframes uiverse723 {
+  0%, 100% {
+    clip-path: polygon(0% 45%, 15% 44%, 32% 50%, 
+     54% 60%, 70% 61%, 84% 59%, 100% 52%, 100% 100%, 0% 100%);
+  }
+
+  50% {
+    clip-path: polygon(0% 60%, 16% 65%, 34% 66%, 
+     51% 62%, 67% 50%, 84% 45%, 100% 46%, 100% 100%, 0% 100%);
+  }
+}
+
+</style>
   <!-- Jumbotron -->
   <div class="p-3 text-center bg-white border-bottom shadow">
     <div class="d-flex justify-content-center">
       <div class="col-1 text-center ">
+        
         <a href="{% url 'home' %}" class="brand-wrap">
-          <img class="logo img-fluid w-50" src="{% static 'images/logo.png' %}" alt="Logo">
-        </a>
+          <img class="logo img-fluid  my-3" src="{% static 'images/logo.png' %}" alt="Logo">
+          <div class="loader ">
+              <span>DazzLe</span>
+              <span>DazzLe</span>
+          </div>
+      </a> <!-- brand-wrap.// -->
+    <small><small class="mt-3 d-block">UMBRELLAS</small></small>
       </div>
     </div>
   </div>
@@ -88,9 +235,9 @@
                     {% for user_address in user_addresses %}
                     <div class="form-check border mb-2">
                       <div class="p-2">
-                        <input class="form-check-input addresscheck" type="radio" name="address" value="{{ user_address.id }}"
-                          id="user_address{{ forloop.counter }}" {% if forloop.first %}checked{% endif %} onchange="updateHiddenInputs()">
-                        <label class="form-check-label" for="user_address{{ forloop.counter }}">
+                        <input class="form-check-input addresscheck" type="radio" name="address"
+                          id="{{ user_address.id }}" {% if forloop.first %}checked{% endif %} onchange="updateHiddenInputs()">
+                        <label class="form-check-label" for="{{ user_address.id }}">
                           <div>{{ user_address.gender }}. {{ user_address.first_name }} {{ user_address.last_name }}-
                             {{ user_address.mobile }}</div>
                           <div>{{ user_address.address }}</div>
@@ -126,29 +273,28 @@
                   </div>
                   <div class="">
                     <h6 class="fw-bolder">{{ item.product_variant.product.name }}</h6>
-                    <div class="d-flex align-items-center">
+                    <hr class="pb-1">
+                    
+                    <div class="d-flex">
                       <div>
-                        <span class="border border-secondary rounded-3 fw-lighter p-1 me-1">Color
+                       
+                        <span class=" fw-lighter ">Color
                           :
-                          {{ item.product_variant.color_name }}</span>
-                      </div>
-                      <div class="ms-auto">
-                        <a href="{% url 'remove_from_cart' pslug=item.product_variant.product.slug vslug=item.product_variant.slug %}"
-                          role="button" type="button" class="btn btn-outline-light text-danger ms-5"
-                          data-mdb-toggle="tooltip" title="Remove item">
-                          <i class="fas fa-trash"></i>
-                        </a>
+                          {{ item.product_variant.color_name }} </span>
+                          <hr class="">
                       </div>
                     </div>
-                    <hr class="pb-1">
 
-                    <div class="d-flex  align-items-center">
-                      <div class="fw-light border border-dark rounded-3 me-5 px-1">
+                    <div class="d-flex justify-content-between  align-items-center">
+                      <div class="fw-ligh me-3">
                         Count : {{ item.count }}
+                        <hr class="">
                       </div>
-                      <div class="text-dark border border-dark rounded-3 px-1">
+                      <div class="text-dark ">Price :
                         ₹{{ item.total_selling_price }}
+                        <hr class="">
                       </div>
+                      
                     </div>
                   </div>
                 </div>
@@ -192,7 +338,7 @@
               <div class="card-body">
                 <div class="input-group mb-4">
                   <input type="text" class="form-control border couponchecked" id="couponCodeInput" name="coupon_code" value=""
-                    placeholder="Coupon code" />
+                    placeholder="Select a coupon from below and apply" />
                   <button class="btn btn-outline-light text-success border" onclick="apply_coupon()">Apply</button>
                   <button class="btn btn-outline-light text-danger border" onclick="clear_coupon()"><i
                       class="fas fa-trash"></i></button>
@@ -239,21 +385,25 @@
                 <form class="my-2" id="payment" action="{% url 'checkout' %}" method="post">
                   {% csrf_token %}
                   <input type="hidden" id="addressInput" name="hiddenaddress" value="">
-                  <input type="hidden" id="appliedCouponId" name="applied_coupon_id" value="">
+                  {% comment %} <input type="hidden" id="appliedCouponId" name="applied_coupon_id" value=""> {% endcomment %}
                   <input type="hidden" id="pay" name="pay" value="">
                   <div class="border d-flex gap-3 mb-2 p-2">
                     <button type="submit" class="btn btn-outline-light text-primary btn-sm border border-3 border-primary "
                       id="cod-button" onclick="payy()">Cash On Delivery<i class="fa-solid fa-hand-holding-dollar p-1"></i></button>
-                    <button type="submit" class="btn btn-success  btn-sm" id="rzp-button1">Online Payment<i
-                        class="fa-solid fa-credit-card p-1"></i></button>
+
+                        <button type="submit" class="Btnn  btn-sm" id="rzp-button1">
+                          Pay Online
+                          <svg class="svgIcon" viewBox="0 0 576 512"><path d="M512 80c8.8 0 16 7.2 16 16v32H48V96c0-8.8 7.2-16 16-16H512zm16 144V416c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V224H528zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm56 304c-13.3 0-24 10.7-24 24s10.7 24 24 24h48c13.3 0 24-10.7 24-24s-10.7-24-24-24H120zm128 0c-13.3 0-24 10.7-24 24s10.7 24 24 24H360c13.3 0 24-10.7 24-24s-10.7-24-24-24H248z"></path></svg>
+                        </button>
+
                   </div>
                 </form>
               </div>
             </div>
 
             <div class="p-3">
-              <a href="{% url 'cart' %}" type="button" class="btn btn-outline-dark btn-sm mr-2" data-mdb-ripple-init><i
-                  class="fa fa-arrow-circle-left"></i> Go Back To Cart</a>
+              <a href="{% url 'cart' %}" type="button" class="btn btn-outline-dark btn-sm mr-2 button" data-mdb-ripple-init><i
+                  class="fa fa-arrow-circle-left "></i> Go Back To Cart</a>
             </div>
           </div>
         </div>
@@ -384,7 +534,7 @@
         const checkedAddressElement = document.querySelector('.addresscheck:checked');
         const hidden_address = document.getElementById('addressInput');
         if (checkedAddressElement) {
-            hidden_address.value = checkedAddressElement.value;
+            hidden_address.value = checkedAddressElement.id;
         }
     }
 
@@ -563,6 +713,8 @@ updateAppliedCouponId();
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const initiallyCheckedRadio = document.querySelector("input[name='address']:checked");
+        const HiddenInput = document.getElementById('addressInput')
+        HiddenInput.value = initiallyCheckedRadio.id
         if (initiallyCheckedRadio) {
           const radiolabel = initiallyCheckedRadio.parentElement.querySelector("label");
           const selectedaddress = document.getElementById('selectedaddress');

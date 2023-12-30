@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
 import sweetify
 import random
-from .emails import *
+from .tasks import account_verification_email
 
 
 class CreateUser(View):
@@ -66,8 +66,7 @@ class CreateUser(View):
             messages.warning(request, "Email already registered, please use a different email")
             return redirect('register')
         otp = str(random.randint(100000, 999999))
-        account_verification_email(email,otp)
-        # account_verification_email.apply_async(args=[email, otp])
+        account_verification_email.delay(email, otp)
         request.session['signup_data'] = {'username':username,'email': email,'password': password, 'otp': otp}
 
         messages.success(request, "OTP send to your mail.")
@@ -89,7 +88,7 @@ class VerifyOTP(View):
         return redirect('register')
 
     def post(self, request):
-        reciveotp = request.POST.get('otp1') + request.POST.get('otp2') + request.POST.get('otp3') + request.POST.get('otp4') + request.POST.get('otp5') + request.POST.get('otp6')
+        recivedotp = request.POST.get('otp1') + request.POST.get('otp2') + request.POST.get('otp3') + request.POST.get('otp4') + request.POST.get('otp5') + request.POST.get('otp6')
         signup_data =  request.session.get('signup_data',{})
         if not signup_data:
             messages.error(request, 'OTP expired or invalid')
@@ -98,8 +97,8 @@ class VerifyOTP(View):
         username = signup_data.get('username')
         email = signup_data.get('email')
         password = signup_data.get('password')
-        print(reciveotp, otp)
-        if reciveotp != otp:
+        # print(recivedotp, otp)
+        if recivedotp != otp:
             messages.error(request, 'OTP mismatch')
             return redirect('verify_otp')
         user = CustomUser.objects.create_user(username=username, email=email, password=password)
@@ -121,9 +120,9 @@ class ResendOTP(View):
             email = signup_data.get('email')
             username = signup_data.get('username')
             otp = str(random.randint(100000, 999999))
-            account_verification_email(email, otp)
+            account_verification_email.delay(email, otp)
             signup_data['otp'] = otp
-            print(signup_data)
+            # print(signup_data)
             return redirect('verify_otp')
         return redirect('register')
             
