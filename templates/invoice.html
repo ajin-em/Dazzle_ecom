@@ -1,77 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      text-align: center;
+      color: #777;
+    }
+
+    h1 {
+      font-weight: 300;
+      margin-bottom: 0px;
+      padding-bottom: 0px;
+      color: #000;
+    }
+
+    h3 {
+      font-weight: 200;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      font-style: italic;
+      color: #555;
+    }
+
+    a {
+      color: #06f;
+    }
+
+    .invoice-box {
+      max-width: 1000px;
+      margin: auto;
+      border: 1px solid #eee;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+      font-size: 13px;
+      line-height: 20px;
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      color: #555;
+    }
+
+    .invoice-box table {
+      width: 100%;
+      line-height: inherit;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    .invoice-box table td {
+      padding: 5px;
+      vertical-align: top;
+    }
+
+    .invoice-box table tr td:nth-child(2) {
+      text-align: right;
+    }
+
+    .invoice-box table tr.top table td {
+      padding-bottom: 20px;
+    }
+
+    .invoice-box table tr.top table td.title {
+      font-size: 45px;
+      line-height: 45px;
+      color: #333;
+    }
+
+    .invoice-box table tr.information table td {
+      padding-bottom: 40px;
+    }
+
+    .invoice-box table tr.heading td {
+      background: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+
+    .invoice-box table tr.details td {
+      padding-bottom: 20px;
+    }
+
+    .invoice-box table tr.item td {
+      border-bottom: 1px solid #eee;
+    }
+
+    .invoice-box table tr.item.last td {
+      border-bottom: none;
+    }
+
+    .invoice-box table tr.total td:nth-child(2) {
+      border-top: 2px solid #eee;
+      font-weight: bold;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .invoice-box table tr.top table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+      }
+
+      .invoice-box table tr.information table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container" style="margin-top: 50px; text-align: center;">
-        <i class="fas fa-check-circle" style="font-size: 72px; margin-bottom: 20px; color: #28A745;"></i>
-        <h2 style="font-size: 28px;">Payment Successful</h2>
-        <br>
+
+  <div class="invoice-box">
+    <h2>Invoice</h2>
+    <table>
+      <tr>
+        <td><strong>Order ID.:</strong><small>{{ order.id }}</small> 
+			<br>
+			Payment Mode : {{order.payment_method}}
+		</td>
+        <td><strong>Date:</strong>{{ order.created_at|date:"d F Y" }}</td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <td>
+          <h3>FROM ADDRESS</h3>
+          <p>Dazzle Umbrella Mart <br>
+			KOzhikode, Kerala 673571
+		  </p>
+        </td>
+        <td>
+          <h3>BILLING ADDRESS</h3>
+			<p>{{ order.address.first_name }} {{ order.address.last_name }}</p>
+			<p>{{ order.address.mobile }}, {{ order.address.email }}</p>
+			<p>{{ order.address.address }}, {{ order.address.place }}, 
+			   {{ order.address.landmark }}, {{ order.address.place }}-{{ order.address.pincode }},
+			   {{ order.address.district }}, {{ order.address.state }}</p>
+        </td>
+        <td>
+          <h3>SHIPPING ADDRESS</h3>
+          <p>{{ order.address.first_name }} {{ order.address.last_name }}</p>
+			<p>{{ order.address.mobile }}, {{ order.address.email }}</p>
+			<p>{{ order.address.address }}, {{ order.address.place }}, 
+			   {{ order.address.landmark }}, {{ order.address.place }}-{{ order.address.pincode }},
+			   {{ order.address.district }}, {{ order.address.state }}</p>
+        </td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <th>Item Description</th>
+        <th>Qty (In Pcs.)</th>
+        <th>Actual Price (In Rs.)</th>
+        <th>Selling Price (In Rs.)</th>
+        <th>Total Selling Price (In Rs.)</th>
+      </tr>
+	  {% for item  in order.order_items.all %}
+      <tr>
+        <td>{{item.product_variant.product.name}} <br>
+			Color : {{item.product_variant.color_name}} <br> 
+		</td>
+        <td>{{item.count}}</td>
+        <td>{{item.product_variant.actual_price}}</td>
+        <td>{{item.product_variant.selling_price}}</td>
+        <td>{{item.total_selling_price}}</td>
+      </tr>
+	  {% endfor %}
+    </table>
+
+    <div style="text-align: right; margin-top: 20px">
+      <strong>Coupon Discount:</strong> {{order.coupon_price }} <br>
+      <strong>Shipping Charge:</strong> FREE <br>
+      <strong>Final Amount:</strong> {{order.total_selling_price}}
     </div>
-    
-    <div class="container" style="margin: 0 auto; width: 50%; padding: 50px; background: #f1f1f1; margin-top: 50px; margin-bottom: 50px;">
-        <div class="row invoice row-printable">
-            <div style="padding: 0 15px;">
-                <div style="overflow: hidden; margin-bottom: 20px;">
-                    <img src="/images/logo.png" alt="Invoice logo" style="max-height: 40px; float: left;">
-                    <div style="float: right; text-align: right;">
-                        <strong style="font-size: 16px;">Invoiced To</strong>
-                        <p>Jakob Smith</p>
-                        <p>Roupark 37</p>
-                        <p>New York, NY, 2014</p>
-                        <p>USA</p>
-                    </div>
-                </div>
-                <div style="overflow: hidden; margin-bottom: 20px;">
-                    <div style="width: 50%; float: left;">
-                        <div class="well" style="padding: 10px; background-color: #fff;">
-                            <ul style="list-style-type: none; margin: 0; padding: 0;">
-                                <li><strong>Order</strong> #</li>
-                                <li><strong>Transaction</strong> #</li>
-                                <li><strong>Order Date:</strong> Monday, October 10th, 2015</li>
-                                <li><strong>Status:</strong> PAID</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div style="width: 50%; float: right;">
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                            <thead>
-                                <tr>
-                                    <th style="text-align: center; border: 1px solid #ddd; padding: 8px;">Description</th>
-                                    <th style="text-align: center; border: 1px solid #ddd; padding: 8px;">Qty</th>
-                                    <th style="text-align: center; border: 1px solid #ddd; padding: 8px;">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Replace with your invoice items -->
-                                <!-- Sample row -->
-                                <tr>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">1024MB Cloud 2.0 Server - elisium.dynamic.com (12/04/2014 - 01/03/2015)</td>
-                                    <td style="text-align: center; border: 1px solid #ddd; padding: 8px;">1</td>
-                                    <td style="text-align: center; border: 1px solid #ddd; padding: 8px;">$25.00 USD</td>
-                                </tr>
-                                <!-- End sample row -->
-                            </tbody>
-                            <tfoot>
-                                <!-- Replace with your totals -->
-                                <tr>
-                                    <th colspan="2" style="text-align: right; border: 1px solid #ddd; padding: 8px;">Sub Total:</th>
-                                    <th style="text-align: center; border: 1px solid #ddd; padding: 8px;">$237.00 USD</th>
-                                </tr>
-                                <!-- End replacement -->
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-                <div style="clear: both; text-align: center; margin-top: 20px;">
-                    <p>Thank you for shopping with us!</p>
-                </div>
-            </div>
-        </div>
-    </div>
-     
+  </div>
+
 </body>
+
 </html>

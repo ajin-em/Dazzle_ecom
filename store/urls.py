@@ -21,5 +21,6 @@ urlpatterns = [
     path('my_orders/', OrderHistoryView.as_view(), name='order_history'),
     path('my_orders/<uuid:order_id>/', OrderDetails.as_view(), name='order_details'),
     path('order_item/<uuid:order_item_id>/cancel/', CancelOrderItem.as_view(), name='cancel_order_item'),
+    path('invoice/<str:pk>/', Invoice.as_view(), name='invoice'),
 
     ]

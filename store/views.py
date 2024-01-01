@@ -4,14 +4,17 @@ from .models import *
 from core.models import *
 from django.urls import reverse
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import get_template,render_to_string
 from .context_processors import *
 import razorpay
+from xhtml2pdf import pdf
+from xhtml2pdf import pisa
 from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -532,6 +535,19 @@ class CancelOrderItem(View):
         order_item = get_object_or_404(OrderItem, id=order_item_id)
         order_item.cancel_item()
         return redirect('order_details', order_id=order_item.order.id)
+
+class Invoice(View):
+  def get(self, request, pk):
+    template_name = 'invoice.html'
+    order = request.user.orders.get(id=pk)
+    context = {'order':order}
+    html_content = render_to_string(template_name, context)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Dazzle_Umbrella_Invoice.pdf"'
+    pisa_status = pisa.CreatePDF(html_content, dest=response,encoding='utf-8')
+    if pisa_status:
+      return response
+    return None
 
 class WhishList(LoginRequiredMixin, View):
     """
