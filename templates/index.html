@@ -47,7 +47,7 @@
                 
                 <div class="card-body">
                     <h5 class="card-title">{{ item.product.name }}</h5>
-                    <h6 class="card-text">
+                    <p class="card-text">
                         {% if item.first_variant.actual_price == item.first_variant.selling_price %}
                             <strong style="font-size: 14px;">
                                 ₹
@@ -64,10 +64,10 @@
                                 <span>{{ item.first_variant.actual_price }}</span>
                             </strong>
                         {% endif %}
-                        </h6>
+                        </p>
                 </div>
                 
-                  {% if variant in wishlist_items.all %}
+                  {% if item.first_variant.is_in_wishlist %}
                         <span class="wishlist-icon">
                             <h4><a href="{% url 'remove_from_wish' pslug=item.product.slug vslug=item.first_variant.slug %}"  class="text-light"><i class="fa fa-heart" aria-hidden="true" style="color: red; position: absolute; bottom: 60px; right: 30px;"></i></a></h4>
                         </span>
@@ -99,6 +99,6 @@
 </div><!-- container // -->
 </section>
 <!-- ========================= SECTION  END// ========================= -->
-
+z
 {% endblock %}
 

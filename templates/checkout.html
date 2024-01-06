@@ -385,7 +385,6 @@
                 <form class="my-2" id="payment" action="{% url 'checkout' %}" method="post">
                   {% csrf_token %}
                   <input type="hidden" id="addressInput" name="hiddenaddress" value="">
-                  {% comment %} <input type="hidden" id="appliedCouponId" name="applied_coupon_id" value=""> {% endcomment %}
                   <input type="hidden" id="pay" name="pay" value="">
                   <div class="border d-flex gap-3 mb-2 p-2">
                     <button type="submit" class="btn btn-outline-light text-primary btn-sm border border-3 border-primary "
@@ -571,12 +570,28 @@
 
       function apply_coupon() {
         const checkedRadio = document.querySelector('.coupon-radio:checked');
+        if (checkedRadio) {
+            let currentUrl = new URL(window.location.href);
+            let urlparams = new URLSearchParams(currentUrl.search);
+            urlparams.set('coupon', checkedRadio.value);
+            currentUrl.search = urlparams.toString();
+            window.location.href = currentUrl.toString();
+            const couponCode = checkedRadio.parentElement.querySelector('.form-check-label div:first-child').innerText.trim();
+            const successMessage = `Coupon "${couponCode}" applied successfully!`;
+            alert(successMessage);
+        } else {
+            alert('Please select a coupon before applying.');
+        }
+    }
+
+    function clear_coupon() {
         let currentUrl = new URL(window.location.href);
         let urlparams = new URLSearchParams(currentUrl.search);
-        urlparams.set('coupon', checkedRadio.value);
+        urlparams.delete('coupon');
         currentUrl.search = urlparams.toString();
         window.location.href = currentUrl.toString();
-      }
+        //alert('Coupon cleared successfully!');
+    }
 
       document.addEventListener("DOMContentLoaded", function () {
         const selectedRadio = document.querySelector(`.coupon-radio[value="${selectedRadioValue}"]`);

@@ -130,10 +130,9 @@
 				<div class="">
 					<div class="row">
 						{% for variant in page %}
-
+						{{offer_price}} offer_price
 						<div class="col-6 col-md-4">
 
-							{% comment %} {% for variant in item.variants %} {% endcomment %}
 							<div class="card shadow mb-3" style="max-width: 250px; position: relative;">
 								<a href="{% url 'product_detail' pslug=variant.product.slug vslug=variant.slug %}">
 									{% if variant.cover_image %}
@@ -144,6 +143,7 @@
 								<div class="card-body">
 									<h5 class="card-title">{{ variant.product.name }}</h5>
 									<h6 class="card-text">
+				
 										{% if variant.actual_price == variant.selling_price %}
 										<strong style="font-size: 14px;">
 											₹{{ variant.selling_price }}
@@ -158,11 +158,7 @@
 										{% endif %}
 									</h6>
 								</div>
-								{% comment %} <span class="wishlist-icon">
-									<h4><a href="{% url 'add_to_wish' pslug=variant.product.slug vslug=variant.slug %}"
-											class="text-light"><i class="far fa-heart"
-												style="position: absolute; bottom: 60px; right: 30px;"></i></a></h4>
-								</span> {% endcomment %}
+		
 								{% if variant.is_in_wishlist %}
 								<span class="wishlist-icon">
 									<h4><a href="{% url 'remove_from_wish' pslug=variant.product.slug vslug=variant.slug %}"
@@ -179,7 +175,6 @@
 								</span>
 								{% endif %}
 							</div>
-							{% comment %} {% endfor %} {% endcomment %}
 						</div>
 						{% endfor %}
 					</div>

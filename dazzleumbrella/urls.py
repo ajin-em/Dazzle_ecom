@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 import debug_toolbar
 urlpatterns = [
         path('admin/', admin.site.urls),
+        # path('admin_tools/', include('admin_tools.urls')),
         path('',include('core.urls')),
         path('', include('store.urls')), 
         path("__debug__/", include("debug_toolbar.urls")),

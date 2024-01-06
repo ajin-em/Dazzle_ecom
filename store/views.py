@@ -20,7 +20,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.views.decorators.cache import cache_page
 from django.db.models import Q, Prefetch
-
+from django.views.generic import TemplateView
 
 class Home(View):
     """
@@ -45,15 +45,21 @@ class Home(View):
             banners = Banner.objects.all()
             products = Product.objects.prefetch_related(
             Prefetch('variants', queryset=Product_Variant.objects.order_by('id').all(), to_attr='all_variants'))
+            
             products_with_first_variants = []
             
             for product in products:
+                
                 first_variant = product.all_variants[0]
                 if first_variant:
+                    try:
+                        first_variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=first_variant).exists()
+                    except:
+                        first_variant.is_in_wishlist = False
                     products_with_first_variants.append({
                         'product': product,
-                'first_variant': first_variant
-            })
+                'first_variant': first_variant})
+            
             context = {
                 'banners': banners,
                 'products_with_first_variants': products_with_first_variants
@@ -71,69 +77,6 @@ def invalidate_product_cache(sender, instance, **kwargs):
     cache.delete(cache_key)
 
 
-# class ProductListing(View):
-#     """
-#     View for rendering the product listing page.
-
-#     This view displays a list of products available in the store.
-
-#     Attributes:
-#         None
-
-#     Methods:
-#         get(request): Handles GET requests to display the product listing page.
-#     """
-
-
-
-#     def get(self, request):
-
-#         search_key = request.GET.get('search')
-#         selected_colors = request.GET.getlist('color') 
-#         sort_price = request.GET.get('sort_price')
-
-
-#         # variants = Product_Variant.objects.all()
-#         variants = Product_Variant.objects.select_related('product').all()
-#         wishlist = get_object_or_404(WishList, user=request.user)
-        
-#         if selected_colors:
-#             variants = variants.filter(color_name__in=selected_colors)
-
-#         if sort_price == 'lowest':
-#             variants = variants.order_by('selling_price')
-#         elif sort_price == 'highest':
-#             variants = variants.order_by('-selling_price')
-        
-#         if search_key:
-#             variants = variants.filter(
-#                 Q(product__name__icontains=search_key) | Q(color_name__icontains=search_key)
-#             )
-
-#         variants = variants.prefetch_related(
-#         Prefetch(
-#             'wish_items',
-#             queryset=WishItem.objects.filter(wish=wishlist),
-#             to_attr='user_wishlist'
-#             )
-#         )
-#         paginator = Paginator(variants, 9)
-#         page_number = request.GET.get('page')
-#         try:
-#             page = paginator.page(page_number)
-#         except PageNotAnInteger:
-#             page = paginator.page(1)
-#         except EmptyPage:
-#             page = paginator.page(paginator.num_pages)
-
-#         for variant in page.object_list:
-#             variant.is_in_wishlist = any(
-#             item.product_variant_id == variant.id for item in getattr(variant, 'user_wishlist', [])
-#         )
-
-        
-#         return render(request, 'store.html', {'page': page})
-
 class ProductListing(View):
     """
     View for rendering the product listing page.
@@ -148,6 +91,7 @@ class ProductListing(View):
     """
 
     def get_cache_key(self, request):
+        category = request.GET.get('category')
         search_key = request.GET.get('search')
         selected_colors = request.GET.getlist('color')
         sort_price = request.GET.get('sort_price')
@@ -158,17 +102,19 @@ class ProductListing(View):
     def get(self, request):
         cache_key = self.get_cache_key(request)
         cached_data = cache.get(cache_key)
-
-        if not cached_data:
-            variants = Product_Variant.objects.select_related('product').all()
-            wishlist = get_object_or_404(WishList, user=request.user)
-
+        variants = Product_Variant.objects.select_related('product').all()
+        if True:
+            
+            category = request.GET.get('category')
             search_key = request.GET.get('search')
             selected_colors = request.GET.getlist('color')
             sort_price = request.GET.get('sort_price')
 
             if selected_colors:
                 variants = variants.filter(color_name__in=selected_colors)
+
+            if category:
+                variants = variants.filter(product__category__slug=category)
 
             if sort_price == 'lowest':
                 variants = variants.order_by('selling_price')
@@ -180,13 +126,17 @@ class ProductListing(View):
                     Q(product__name__icontains=search_key) | Q(color_name__icontains=search_key)
                 )
 
+            # for variant in variants:
+            #     try:
+            #         variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=variant).exists()
+            #     except:
+            #         variant.is_in_wishlist = False
             variants = variants.prefetch_related(
-                Prefetch(
-                    'wish_items',
-                    queryset=WishItem.objects.filter(wish=wishlist),
-                    to_attr='user_wishlist'
-                )
+            Prefetch('wish_items', queryset=WishItem.objects.filter(wish__user=request.user), to_attr='user_wish_items')
             )
+
+            for variant in variants:
+                variant.is_in_wishlist = any(wish_item.product_variant_id == variant.id for wish_item in variant.user_wish_items)
 
             paginator = Paginator(variants, 9)
             page_number = request.GET.get('page')
@@ -197,10 +147,7 @@ class ProductListing(View):
             except EmptyPage:
                 page = paginator.page(paginator.num_pages)
 
-            for variant in page.object_list:
-                variant.is_in_wishlist = any(
-                    item.product_variant_id == variant.id for item in getattr(variant, 'user_wishlist', [])
-                )
+
 
             context = {'page': page}
             cache.set(cache_key, context, timeout=900)  
@@ -229,13 +176,27 @@ class ProductDetailView(View):
     def get(self, request, pslug, vslug):
         product = get_object_or_404(Product, slug=pslug)
         variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
-        is_in_wishlist = WishItem.objects.filter(product_variant=variant).exists()
-        is_in_cart = CartItem.objects.filter(product_variant=variant).exists()
+        is_in_cart = CartItem.objects.filter(product_variant=variant,cart__user=request.user).exists()
+        try:
+            variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=variant).exists()
+        except:
+            variant.is_in_wishlist = False
+        offer_price = 0
+        offer_percent = 0
+        try:
+            offer = Offer.objects.filter(product=variant.product).first()
+            offer_percent = offer.offer_percentage
+            offer_price = variant.selling_price - (variant.selling_price*offer_percent)//100
+           
+        except:
+            pass
+        
 
         context = {
             'variant': variant,
-            'is_in_wishlist': is_in_wishlist,
             'is_in_cart': is_in_cart,
+            'offer_price': offer_price,
+            'offer_percent':offer_percent,
         }
         return render(request, "product_detail.html", context)
 
@@ -498,9 +459,10 @@ class ClearCouponView(View):
             Redirects to the 'checkout' URL after attempting to clear the coupon.
         """
         
-        checkout = Checkout.objects.get(user=request.user)
-        checkout.coupon_price = 0
-        checkout.save()
+        if 'coupon_discount' in request.session:
+            del request.session['coupon_discount']
+            messages.success(request, 'Coupon cleared successfully')
+            
         return redirect('checkout') 
     
 

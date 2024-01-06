@@ -5,7 +5,8 @@ from django.utils.text import slugify
 from colorfield.fields import ColorField
 from core.models import *
 from django.db.models import Sum 
-
+from django.core.exceptions import ValidationError
+from django.contrib import messages
 
 
 class Category(models.Model):
@@ -114,7 +115,6 @@ class ProductImage(models.Model):
     extra_images = models.ImageField(upload_to="variant_extra_images", null=True, blank=True)
     product_variant = models.ForeignKey(Product_Variant, on_delete=models.CASCADE ,related_name='variant_images',null=True)
 
-
     def delete(self):
         self.extra_images.delete()
         super().delete()
@@ -200,7 +200,30 @@ class CartItem(models.Model):
         self.total_selling_price = self.count * self.product_variant.selling_price
         self.total_actual_price = self.count * self.product_variant.actual_price
         super().save(*args, **kwargs)
-    
+
+
+class Offer(models.Model):
+
+
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    offer_percentage = models.PositiveIntegerField(default=0)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offer')
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        existing_offer = Offer.objects.filter(product=self.product).exclude(id=self.id)
+
+        if existing_offer.exists():
+            error_message = 'Another offer already exists for the same product within the specified date range.'
+            messages.error(kwargs.get('request'), error_message)
+            raise ValidationError(error_message)
+
+
+
+        super(Offer, self).save(*args, **kwargs)
+
     
 
 class Coupon(models.Model):

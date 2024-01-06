@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import *
 
+
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
     """
@@ -81,3 +82,5 @@ class UserAddressAdmin(admin.ModelAdmin):
         return False
 
 admin.site.register(UserAddress, UserAddressAdmin)
+# admin.site.register(Writer, WriterAdmin)
+# admin.site.register(Article)

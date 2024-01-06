@@ -15,6 +15,7 @@ import os
 from dotenv import load_dotenv
 
 
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,6 +43,10 @@ AUTH_USER_MODEL = 'core.CustomUser'
 
 INSTALLED_APPS = [
     'jazzmin',
+    # 'admin_tools',
+    # 'admin_tools.theming',
+    # 'admin_tools.menu',
+    # 'admin_tools.dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,10 +58,10 @@ INSTALLED_APPS = [
     'store',
     "debug_toolbar",
     "colorfield",
-    'sweetify',
     'django_celery_results',
-    
+   
 ]
+
 
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
@@ -76,7 +81,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR,'templates')],
-        'APP_DIRS': True,
+        # 'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -85,6 +90,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 #custom context_processor
                 'store.context_processors.count',
+            ],
+            'loaders': [
+                'admin_tools.template_loaders.Loader',  # Make sure this is at the beginning
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
             ],
         },
     },
@@ -187,7 +197,7 @@ JAZZMIN_SETTINGS = {
     'site_header': 'DAZZLE',
     "site_brand": "Dazzle",
     'site_logo': '/images/logo.png',
-    'copyright':'dazzle.shop.com',
+    'copyright':'dazzle_umbrella.shop.com',
 }
 # JAZZMIN_SETTINGS["show_ui_builder"] = True
 
