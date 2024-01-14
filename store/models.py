@@ -7,6 +7,7 @@ from core.models import *
 from django.db.models import Sum 
 from django.core.exceptions import ValidationError
 from django.contrib import messages
+from PIL import Image
 
 
 class Category(models.Model):
@@ -95,6 +96,7 @@ class Product_Variant(models.Model):
     def __str__(self):
         return f"{self.product.name} - {self.color_name}"
 
+
 class ProductImage(models.Model):
     """
     Represents an image associated with a product variant.
@@ -115,6 +117,7 @@ class ProductImage(models.Model):
     extra_images = models.ImageField(upload_to="variant_extra_images", null=True, blank=True)
     product_variant = models.ForeignKey(Product_Variant, on_delete=models.CASCADE ,related_name='variant_images',null=True)
 
+
     def delete(self):
         self.extra_images.delete()
         super().delete()
@@ -122,6 +125,8 @@ class ProductImage(models.Model):
 
     def __str__(self):
        return f"Image for {self.product_variant.product.name}"
+
+    
 
 
 
@@ -199,8 +204,16 @@ class CartItem(models.Model):
        
         self.total_selling_price = self.count * self.product_variant.selling_price
         self.total_actual_price = self.count * self.product_variant.actual_price
-        super().save(*args, **kwargs)
+        
 
+        offer = Offer.objects.filter(
+                product=self.product_variant.product).first()
+
+        if offer:
+            offer_discount = (self.product_variant.selling_price * offer.offer_percentage) // 100
+            self.total_selling_price -= offer_discount
+
+        super().save(*args, **kwargs)
 
 class Offer(models.Model):
 
@@ -304,11 +317,11 @@ class OrderItem(models.Model):
     total_selling_price = models.PositiveIntegerField(default=0)
     total_actual_price = models.PositiveIntegerField(default=0)
     ORDER_STATUS_CHOICES = [
-        ('confirmed', 'Confirm'),
-        ('cancelled', 'Cancel'),
-        ('processing', 'Processing'),
-        ('shipping', 'Shipped'),
-        ('delivered', 'Delivered'),
+    ('CONFIRMED', 'Confirm'),
+    ('CANCELLED', 'Cancel'),
+    ('PROCESSING', 'Processing'),
+    ('SHIPPING', 'Shipped'),
+    ('DELIVERED', 'Delivered'),
     ]
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='confirmed')
     

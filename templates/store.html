@@ -130,47 +130,60 @@
 				<div class="">
 					<div class="row">
 						{% for variant in page %}
-						{{offer_price}} offer_price
 						<div class="col-6 col-md-4">
 
 							<div class="card shadow mb-3" style="max-width: 250px; position: relative;">
 								<a href="{% url 'product_detail' pslug=variant.product.slug vslug=variant.slug %}">
 									{% if variant.cover_image %}
 									<img src="{{ variant.cover_image.url }}" class="img-fluid p-3" alt="Image"
-										style="min-width: 250px;">
+										style="max-width: 220px;">
 									{% endif %}
 								</a>
 								<div class="card-body">
 									<h5 class="card-title">{{ variant.product.name }}</h5>
-									<h6 class="card-text">
-				
-										{% if variant.actual_price == variant.selling_price %}
-										<strong style="font-size: 14px;">
-											₹{{ variant.selling_price }}
-										</strong>
+									<p class="card-text">
+					
+										{% if variant.offer_percent %}
+
+											<strong style="font-size: 14px;">
+												₹ {{ variant.offer_price }} <del>{{ variant.selling_price }}</del>
+											</strong>
+											<strong class="text-decoration-line-through" style="font-size: 10px;">
+												MRP:<span>{{ variant.actual_price }}</span>
+											</strong>
+											<br>
+											(extra {{ variant.offer_percent }}% off)
+									
 										{% else %}
-										<strong style="font-size: 14px;">
-											₹{{ variant.selling_price }}
-										</strong>
-										<strong class="text-decoration-line-through" style="font-size: 10px;">
-											MRP: ₹<span>{{ variant.actual_price }}</span>
-										</strong>
+
+											{% if variant.actual_price == variant.selling_price %}
+												<strong style="font-size: 14px;">₹ {{ variant.selling_price }}</strong>
+												<br>
+												<br>
+											{% else %}
+												<strong style="font-size: 14px;" class="mx-1">
+													₹ {{ variant.selling_price }} <del>MRP:{{ variant.actual_price }}</del>
+												</strong>
+												<br>
+												<br>
+											{% endif %}
+
 										{% endif %}
-									</h6>
-								</div>
+									</p>
+									</div>
 		
 								{% if variant.is_in_wishlist %}
 								<span class="wishlist-icon">
 									<h4><a href="{% url 'remove_from_wish' pslug=variant.product.slug vslug=variant.slug %}"
 											class="text-light"><i class="fa fa-heart" aria-hidden="true"
-												style="color: red; position: absolute; bottom: 60px; right: 30px;"></i></a>
+												style="color: red; position: absolute; top: 20px; right: 20px;"></i></a>
 									</h4>
 								</span>
 								{% else %}
 								<span class="wishlist-icon">
 									<h4><a href="{% url 'add_to_wish' pslug=variant.product.slug vslug=variant.slug %}"
 											class="text-light"
-											style=" position: absolute; bottom: 60px; right: 30px;"><i
+											style=" position: absolute; top: 20px; right: 20px;"><i
 												class="far fa-heart"></i></a></h4>
 								</span>
 								{% endif %}

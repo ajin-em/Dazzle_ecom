@@ -201,7 +201,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     download_sales_report_excel.short_description = "Download Sales Report (Excel)"
     
-   
+admin.site.register(Category, CategoryAdmin)   
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Product_Variant, ProductVariantAdmin)
 admin.site.register(Banner, BannerAdmin)

@@ -21,6 +21,7 @@ from django.dispatch import receiver
 from django.views.decorators.cache import cache_page
 from django.db.models import Q, Prefetch
 from django.views.generic import TemplateView
+from datetime import datetime
 
 class Home(View):
     """
@@ -56,10 +57,23 @@ class Home(View):
                         first_variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=first_variant).exists()
                     except:
                         first_variant.is_in_wishlist = False
-                    products_with_first_variants.append({
-                        'product': product,
-                'first_variant': first_variant})
-            
+                    active_offer = Offer.objects.filter(product=product).first()
+                    if active_offer:
+                        offer_price = int(first_variant.selling_price - (first_variant.selling_price * (active_offer.offer_percentage / 100)))
+                        products_with_first_variants.append({
+                            'product': product,
+                            'first_variant': first_variant,
+                            'offer_percentage': active_offer.offer_percentage,
+                            'offer_price': offer_price
+                        })
+                    else:
+                        products_with_first_variants.append({
+                            'product': product,
+                            'first_variant': first_variant,
+                            'offer_percentage': None,
+                            'offer_price': None
+                        })
+              
             context = {
                 'banners': banners,
                 'products_with_first_variants': products_with_first_variants
@@ -103,6 +117,9 @@ class ProductListing(View):
         cache_key = self.get_cache_key(request)
         cached_data = cache.get(cache_key)
         variants = Product_Variant.objects.select_related('product').all()
+        active_offers = Offer.objects.all()
+        offer_mapping = {offer.product_id: (offer.offer_percentage, offer.id) for offer in active_offers}
+
         if True:
             
             category = request.GET.get('category')
@@ -125,18 +142,20 @@ class ProductListing(View):
                 variants = variants.filter(
                     Q(product__name__icontains=search_key) | Q(color_name__icontains=search_key)
                 )
-
-            # for variant in variants:
-            #     try:
-            #         variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=variant).exists()
-            #     except:
-            #         variant.is_in_wishlist = False
-            variants = variants.prefetch_related(
-            Prefetch('wish_items', queryset=WishItem.objects.filter(wish__user=request.user), to_attr='user_wish_items')
-            )
-
+            if request.user.is_authenticated:
+                variants = variants.prefetch_related(
+                Prefetch('wish_items', queryset=WishItem.objects.filter(wish__user=request.user), to_attr='user_wish_items')
+                )
             for variant in variants:
-                variant.is_in_wishlist = any(wish_item.product_variant_id == variant.id for wish_item in variant.user_wish_items)
+                if variant.product.id in offer_mapping:
+                    offer_percent, offer_id = offer_mapping[variant.product.id]
+                    variant.offer_percent = offer_percent
+                    variant.offer_id = offer_id
+                    variant.offer_price = int(variant.selling_price - (variant.selling_price * (offer_percent / 100)))
+                if request.user.is_authenticated:
+                    variant.is_in_wishlist = any(wish_item.product_variant_id == variant.id for wish_item in variant.user_wish_items)
+                else:
+                    variant.is_in_wishlist = False
 
             paginator = Paginator(variants, 9)
             page_number = request.GET.get('page')
@@ -149,7 +168,7 @@ class ProductListing(View):
 
 
 
-            context = {'page': page}
+            context = {'page': page,}
             cache.set(cache_key, context, timeout=900)  
         else:
             context = cached_data
@@ -186,7 +205,7 @@ class ProductDetailView(View):
         try:
             offer = Offer.objects.filter(product=variant.product).first()
             offer_percent = offer.offer_percentage
-            offer_price = variant.selling_price - (variant.selling_price*offer_percent)//100
+            offer_price = int(variant.selling_price - (variant.selling_price * (offer_percent / 100)))
            
         except:
             pass
@@ -238,7 +257,9 @@ class CartView(LoginRequiredMixin, View):
         """
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart.update_totals()
-        cart_items = cart.cart_items.all().order_by('id').select_related('product_variant__product')  
+        cart_items = cart.cart_items.all().order_by('id').select_related('product_variant__product')
+        
+        # offers = {offer.product.id: offer.offer_percentage for offer in Offer.objects.all()}
 
         has_address = UserAddress.objects.filter(user=request.user).exists()
         
@@ -246,6 +267,7 @@ class CartView(LoginRequiredMixin, View):
             'cart': cart,
             'cart_items': cart_items,
             'has_address': has_address,
+            # 'offers': offers,
         }
         return render(request, 'cart.html', context)
 
