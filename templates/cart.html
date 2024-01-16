@@ -137,11 +137,11 @@
                     </td>
                     <td>
                       <div class="mt-5">₹ {{item.total_selling_price}} </div>
-                      {% comment %} {% if offers %}
+                      {% if offers %}
                         {% for offer in offers.items %}
                           (Extra {{ offer.1 }} % off)
                         {% endfor %}
-                      {% endif %} {% endcomment %}
+                      {% endif %}
                       <div class="text-decoration-line-through"><small>MRP ₹ {{item.total_actual_price}}</small> </div>
                     </td>
                   </tr>

@@ -259,7 +259,7 @@ class CartView(LoginRequiredMixin, View):
         cart.update_totals()
         cart_items = cart.cart_items.all().order_by('id').select_related('product_variant__product')
         
-        # offers = {offer.product.id: offer.offer_percentage for offer in Offer.objects.all()}
+        offers = {offer.product.id: offer.offer_percentage for offer in Offer.objects.all()}
 
         has_address = UserAddress.objects.filter(user=request.user).exists()
         
@@ -267,7 +267,7 @@ class CartView(LoginRequiredMixin, View):
             'cart': cart,
             'cart_items': cart_items,
             'has_address': has_address,
-            # 'offers': offers,
+            'offers': offers,
         }
         return render(request, 'cart.html', context)
 
