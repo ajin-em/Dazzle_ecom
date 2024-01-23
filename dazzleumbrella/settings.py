@@ -43,23 +43,24 @@ AUTH_USER_MODEL = 'core.CustomUser'
 
 INSTALLED_APPS = [
     'jazzmin',
-    'admin_tools_stats',  
-    'django_nvd3',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #custom apps
+    #custom_apps
     'core',
     'store',
+    #Third_party_apps
     "debug_toolbar",
     "colorfield",
     'django_celery_results',
+    'ckeditor',
    
 ]
 
+JET_DEFAULT_THEME = 'green'
 
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",

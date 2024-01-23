@@ -20,12 +20,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 import debug_toolbar
 urlpatterns = [
+        # path('jet/', include('jet.urls', 'jet')),  
+        # path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
         path('admin/', admin.site.urls),
-        # path('admin_tools/', include('admin_tools.urls')),
         path('',include('core.urls')),
         path('', include('store.urls')), 
         path("__debug__/", include("debug_toolbar.urls")),
-        path('admin_tools_stats/', include('admin_tools_stats.urls')),
+        
     
     ]
 

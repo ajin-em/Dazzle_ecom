@@ -156,6 +156,7 @@ class ProductListing(View):
                     variant.is_in_wishlist = any(wish_item.product_variant_id == variant.id for wish_item in variant.user_wish_items)
                 else:
                     variant.is_in_wishlist = False
+            distinct_colors = set(variants.values_list('color_name', flat=True).distinct())
 
             paginator = Paginator(variants, 9)
             page_number = request.GET.get('page')
@@ -168,7 +169,9 @@ class ProductListing(View):
 
 
 
-            context = {'page': page,}
+            context = {'page': page,
+                        'distinct_colors': distinct_colors,
+                        }
             cache.set(cache_key, context, timeout=900)  
         else:
             context = cached_data
@@ -637,3 +640,4 @@ class ClearWishList(View):
         wish, created = WishList.objects.get_or_create(user=request.user)
         wish.wish_items.all().delete()
         return redirect('wish')
+

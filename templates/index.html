@@ -26,20 +26,20 @@
 
 <!-- ========================= SECTION  ========================= -->
 <section class="section-name padding-y-sm ">
-<div class="container">
+<div class="container-fluid ">
 
 <header class="section-heading">
 	
-	<h5 class="section-title">Featured products</h5>
+	<h4 class="section-title text-center ">Featured Products</h4>
 </header><!-- sect-heading -->
 
-<div class="container ">
+<div class="container-fluid">
 
     <div class="row">
         {% for item in products_with_first_variants %}
-        <div class="col-6 col-md-3">
+        <div class="col-12 d-flex justify-content-center align-items-center col-md-2">
            
-            <div class="card mb-3 shadow " style="max-width: 250px; position: relative;">
+            <div class="card mb-5 shadow " style="max-width: 250px; position: relative;">
                 
                 <a href="{% url 'product_detail' pslug=item.product.slug vslug=item.first_variant.slug %}">
                     <img src="{{ item.first_variant.cover_image.url }}" class="img-fluid mt-2 p-3" alt="Image" style="max-width: 220px;">

@@ -1,0 +1,487 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+
+
+<!DOCTYPE html>
+<html x-data="data()" lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <!-- Favicon -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js" integrity="sha256-XF29CBwU1MWLaGEnsELogU6Y6rcc5nCkhhx89nFMIDQ=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+</head>
+
+<body>
+    <div class="flex h-screen bg-gray-800 " :class="{ 'overflow-hidden': isSideMenuOpen }">
+
+        <!-- Desktop sidebar -->
+        
+
+        <!-- Mobile sidebar -->
+        <!-- Backdrop -->
+        <div x-show="isSideMenuOpen" x-transition:enter="transition ease-in-out duration-150"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in-out duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"></div>
+
+        
+
+        <div class="flex flex-col flex-1 w-full overflow-y-auto">
+           
+            <main class="">
+                <div class="grid mb-4 pb-10 px-8 mx-4  ">
+
+                    <div class="grid grid-cols-12 gap-6">
+                        <div class="grid grid-cols-12 col-span-12 gap-6 xxl:col-span-9">
+                            <div class="col-span-12 mt-8">
+                                <div class="flex items-center h-10 intro-y">
+                                    <h2 class="mr-5 text-lg font-medium truncate">Dashboard</h2>
+                                </div>
+                                <div class="grid grid-cols-12 gap-6 mt-5">
+                                    <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+                                        href="#">
+                                        <div class="p-5">
+                                            <div class="flex justify-between">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-400">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                                </svg>
+
+                                            </div>
+                                            <div class="ml-2 w-full flex-1">
+                                                <div>
+                                                    <div class="mt-3 text-3xl font-bold leading-8">{{user_count}}3</div>
+
+                                                    <div class="mt-1 text-base text-gray-600">Total Users</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+                                        href="#">
+                                        <div class="p-5">
+                                            <div class="flex justify-between">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-400">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                                </svg>
+
+                                            </div>
+                                            <div class="ml-2 w-full flex-1">
+                                                <div>
+                                                    <div class="mt-3 text-3xl font-bold leading-8">{{product_count}}100</div>
+
+                                                    <div class="mt-1 text-base text-gray-600">Item Count</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+                                        href="#">
+                                        <div class="p-5">
+                                            <div class="flex justify-between">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-pink-600"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                                </svg>
+                                             
+                                            </div>
+                                            <div class="ml-2 w-full flex-1">
+                                                <div>
+                                                    <div class="mt-3 text-3xl font-bold leading-8">{{order_count}}350</div>
+
+                                                    <div class="mt-1 text-base text-gray-600">Total Order</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+                                        href="#">
+                                        <div class="p-5">
+                                            <div class="flex justify-between">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-400"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                                </svg>
+                                              
+                                            </div>
+                                            <div class="ml-2 w-full flex-1">
+                                            
+                                                <div>
+                                                    <div class="mt-3 text-3xl font-bold leading-8">{{total_payment}}100000</div>
+
+                                                    <div class="mt-1 text-base text-gray-600">Total Amount</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div style="text-align: center; right-6">
+    <form method="get" id="interval-form">
+        
+        <select name="interval" id="interval" onchange="submitForm()" class='pr-2 right-6'>
+            <option value="daily" {% if interval == 'daily' %}selected{% endif %}>Daily</option>
+            <option value="monthly" {% if interval == 'monthly' %}selected{% endif %}>Monthly</option>
+            <option value="yearly" {% if interval == 'yearly' %}selected{% endif %}>Yearly</option> <!-- Changed to "Yearly" -->
+        </select>
+
+    </form>
+</div>
+
+<script>
+    function submitForm() {
+        document.getElementById('interval-form').submit();
+    }
+</script>
+
+
+<div class="col-span-12 mt-5">
+    <div class="mt-1 text-base text-gray-600">Total Revenue</div>
+        <div id="chart-container" style="width: 80%; margin: 0 auto;">
+        <canvas id="sales-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="col-span-12 mt-5">
+    <div class="mt-1 text-base text-gray-600">Order Status</div>
+
+    <div id="chart-container" style="width: 50%; margin: 0 auto;">
+        <canvas id="orderStatusChart"></canvas>
+    </div>
+        <div class="mt-1 text-base text-gray-600">Total Sales of Product</div>
+        <canvas id="productSalesChart" width="400" height="200"></canvas>
+        <div class="mt-1 text-base text-gray-600">Total Revenue of Product</div>
+        <canvas id="productPriceChart" width="400" height="200"></canvas>
+</div>
+
+                            
+    
+    
+    
+ 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var chartData = [10,48,99,87];
+    var ctxSales = document.getElementById('productSalesChart').getContext('2d');
+    var chartSales = new Chart(ctxSales, {
+        type: 'bar',
+        data: {
+            labels: chartData.product_names,
+            datasets: [
+                {
+                    label: 'Total Sales',
+                    data: chartData.total_sales,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                }
+            }
+        }
+    });
+    
+    var ctxPrice = document.getElementById('productPriceChart').getContext('2d');
+    var chartPrice = new Chart(ctxPrice, {
+        type: 'bar',  // You can use 'bar' or 'line' as needed
+        data: {
+            labels: chartData.product_names,
+            datasets: [
+                {
+                    label: 'Total Price',
+                    data: chartData.total_price,
+                    backgroundColor: 'rgba(192, 75, 75, 0.2)',
+                    borderColor: 'rgba(192, 75, 75, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                }
+            }
+        }
+    });
+</script>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var chartData = {{ chart_data|safe }};
+    var ctxSales = document.getElementById('productSalesChart').getContext('2d');
+    var chartSales = new Chart(ctxSales, {
+        type: 'bar',
+        data: {
+            labels: chartData.product_names,
+            datasets: [
+                {
+                    label: 'Total Sales',
+                    data: chartData.total_sales,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                }
+            }
+        }
+    });
+    
+    var ctxPrice = document.getElementById('productPriceChart').getContext('2d');
+    var chartPrice = new Chart(ctxPrice, {
+        type: 'bar',  // You can use 'bar' or 'line' as needed
+        data: {
+            labels: chartData.product_names,
+            datasets: [
+                {
+                    label: 'Total Price',
+                    data: chartData.total_price,
+                    backgroundColor: 'rgba(192, 75, 75, 0.2)',
+                    borderColor: 'rgba(192, 75, 75, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                }
+            }
+        }
+    });
+</script>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <script>
+    var ctx = document.getElementById('sales-chart').getContext('2d');
+    var chartData = {{ chart_data|safe }};
+
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Total Revenue',
+                data: chartData.revenue_data,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+<script>
+    var chartData = {{ chart_data|safe }};
+    var ctx = document.getElementById('orderStatusChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: chartData.labelz,
+            datasets: [
+                {
+                    label: 'Order Status',
+                    data: chartData.counts,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                       
+                    ],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                }
+            }
+        }
+    });
+</script>
+
+    <script>
+        function data() {
+          
+            return {
+               
+                isSideMenuOpen: false,
+                toggleSideMenu() {
+                    this.isSideMenuOpen = !this.isSideMenuOpen
+                },
+                closeSideMenu() {
+                    this.isSideMenuOpen = false
+                },
+                isNotificationsMenuOpen: false,
+                toggleNotificationsMenu() {
+                    this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+                },
+                closeNotificationsMenu() {
+                    this.isNotificationsMenuOpen = false
+                },
+                isProfileMenuOpen: false,
+                toggleProfileMenu() {
+                    this.isProfileMenuOpen = !this.isProfileMenuOpen
+                },
+                closeProfileMenu() {
+                    this.isProfileMenuOpen = false
+                },
+                isPagesMenuOpen: false,
+                togglePagesMenu() {
+                    this.isPagesMenuOpen = !this.isPagesMenuOpen
+                },
+               
+            }
+        }
+    </script>
+    <script>
+        var chart = document.querySelector('#chartline')
+        var options = {
+            series: [{
+                name: 'TEAM A',
+                type: 'area',
+                data: [44, 55, 31, 47, 31, 43, 26, 41, 31, 47, 33]
+            }, {
+                name: 'TEAM B',
+                type: 'line',
+                data: [55, 69, 45, 61, 43, 54, 37, 52, 44, 61, 43]
+            }],
+            chart: {
+                height: 350,
+                type: 'line',
+                zoom: {
+                    enabled: false
+                }
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            fill: {
+                type: 'solid',
+                opacity: [0.35, 1],
+            },
+            labels: ['Dec 01', 'Dec 02', 'Dec 03', 'Dec 04', 'Dec 05', 'Dec 06', 'Dec 07', 'Dec 08', 'Dec 09 ',
+                'Dec 10', 'Dec 11'
+            ],
+            markers: {
+                size: 0
+            },
+            yaxis: [{
+                    title: {
+                        text: 'Series A',
+                    },
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'Series B',
+                    },
+                },
+            ],
+            tooltip: {
+                shared: true,
+                intersect: false,
+                y: {
+                    formatter: function(y) {
+                        if (typeof y !== "undefined") {
+                            return y.toFixed(0) + " points";
+                        }
+                        return y;
+                    }
+                }
+            }
+        };
+        var chart = new ApexCharts(chart, options);
+        chart.render();
+    </script>
+    <script>
+        var chart = document.querySelector('#chartpie')
+        var options = {
+            series: [44, 55, 67, 83],
+            chart: {
+                height: 350,
+                type: 'radialBar',
+            },
+            plotOptions: {
+                radialBar: {
+                    dataLabels: {
+                        name: {
+                            fontSize: '22px',
+                        },
+                        value: {
+                            fontSize: '16px',
+                        },
+                        total: {
+                            show: true,
+                            label: 'Total',
+                            formatter: function(w) {
+                                // By default this function returns the average of all series. The below is just an example to show the use of custom formatter function
+                                return 249
+                            }
+                        }
+                    }
+                }
+            },
+            labels: ['Apples', 'Oranges', 'Bananas', 'Berries'],
+        };
+        var chart = new ApexCharts(chart, options);
+        chart.render();
+    </script>
+</body>
+
+</html>
+
+</body>
+
+</html>
+
+
+
+{% endblock %}

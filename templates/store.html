@@ -3,6 +3,20 @@
 {% block content %}
 {% load static %}
 
+<style>
+	.checkbox-btn input:checked + .btn-light {
+		background-color: #78BB7B; 
+		color: #fff;
+		border: 1px solid #78BB7B; 
+	}
+
+
+	.select_input:checked {
+        filter: hue-rotate(-120deg); 
+    }
+
+</style>
+
 
 <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop ">
@@ -15,81 +29,38 @@
 
 <!-- ========================= SECTION CONTENT ========================= -->
 <section class="section-content padding-y ">
-	<div class="container">
+	<div class="container-fluid">
 
 		<div class="row">
-			<aside class="col-md-2">
+			<aside class="col-md-2 ms-lg-5">
 
-				<div class="card shadow">
+				<div class="card shadow mb-5">
 					<form class="filters-form" method="get" action="{% url 'store' %}" role="search">
 						<article class="filter-group">
 							<header class="card-header">
-								<a href="#" data-toggle="collapse" data-target="#collapse_4" aria-expanded="true"
-									class="">
-									<i class="icon-control fa fa-chevron-down"></i>
-									<h6 class="title">Colors </h6>
-								</a>
+								<div class="collapse-header" data-toggle="collapse" data-target="#collapse_4" aria-expanded="true">
+									<i class="icon-control fa fa-chevron-down" style="color: #78BB7B;"></i>
+									<h6 class="title" style="color: #78BB7B;">Colors: </h6>
+								</div>
 							</header>
 							<div class="filter-content collapse show" id="collapse_4">
 								<div class="card-body color-filters">
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Red">
-										<span class="btn btn-light"> Red </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Pink">
-										<span class="btn btn-light"> Pink </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="White">
-										<span class="btn btn-light"> White </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Off-white">
-										<span class="btn btn-light"> Off White </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Blue">
-										<span class="btn btn-light"> Blue </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Black">
-										<span class="btn btn-light"> Black </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Sky Blue">
-										<span class="btn btn-light"> Sky Blue </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Brown">
-										<span class="btn btn-light"> Brown </span>
-									</label>
-
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Navy Blue">
-										<span class="btn btn-light"> Navy Blue </span>
-									</label>
-									<label class="checkbox-btn">
-										<input type="checkbox" name="color" value="Frozen Blue">
-										<span class="btn btn-light"> Frozen Blue </span>
-									</label>
-								</div><!-- card-body.// -->
+									{% for color in distinct_colors %}
+										<label class="checkbox-btn">
+											<input type="checkbox" name="color" value="{{ color }}">
+											<span class="btn btn-light p-1"> {{ color }}</span>
+										</label>
+									{% endfor %}
+								</div>
 							</div>
 						</article> <!-- filter-group .// -->
 						<article class="filter-group">
 							<header class="card-header">
-								<a href="#" data-toggle="collapse" data-target="#collapse_3" aria-expanded="true"
+								<div data-toggle="collapse" data-target="#collapse_3" aria-expanded="true"
 									class="">
-									<i class="icon-control fa fa-chevron-down"></i>
-									<h6 class="title">Sort by: </h6>
-								</a>
+									<i class="icon-control fa fa-chevron-down " style="color: #78BB7B;"></i>
+									<h6 class="title" style="color: #78BB7B;">Sort by: </h6>
+								</div>
 							</header>
 							<div class="filter-content collapse show" id="collapse_3">
 
@@ -130,9 +101,9 @@
 				<div class="">
 					<div class="row">
 						{% for variant in page %}
-						<div class="col-6 col-md-4">
+						<div class="col-12 d-flex justify-content-center align-items-center  col-md-6 col-lg-3">
 
-							<div class="card shadow mb-3" style="max-width: 250px; position: relative;">
+							<div class="card shadow mb-5" style="max-width: 300px; position: relative;">
 								<a href="{% url 'product_detail' pslug=variant.product.slug vslug=variant.slug %}">
 									{% if variant.cover_image %}
 									<img src="{{ variant.cover_image.url }}" class="img-fluid p-3" alt="Image"
