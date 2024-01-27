@@ -1,4 +1,5 @@
 from .models import *
+from core .models import *
 
 def count(request):
     cart_count = 0
@@ -22,12 +23,12 @@ def custom_admin_context(request):
     if request.path == '/admin/':
         interval = request.GET.get('interval', 'daily') if request.GET.get('interval') in ['daily', 'monthly', 'yearly'] else 'daily'
 
-        user_count = UserProfile.objects.count()
+        user_count = CustomUser.objects.count()
+        print(user_count, 'user_count')
         product_count = Product.objects.count()
+        print(product_count, 'product_count')
         order_count = Order.objects.count()
-
-        # Order status data
-        order_status_data = Order.objects.values('status').annotate(count=Count('status'))
+        print(order_count, 'order_count')
 
         # Total successful payments
         total_successful_payments = Payment.objects.filter(status='paid').aggregate(total_amount=Sum('amount'))

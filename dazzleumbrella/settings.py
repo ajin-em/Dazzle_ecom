@@ -42,6 +42,8 @@ AUTH_USER_MODEL = 'core.CustomUser'
 
 
 INSTALLED_APPS = [
+    # 'admin_tools_stats',
+    # 'django_nvd3',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,8 +58,8 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "colorfield",
     'django_celery_results',
-    'ckeditor',
-   
+  
+
 ]
 
 JET_DEFAULT_THEME = 'green'
