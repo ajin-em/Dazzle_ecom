@@ -91,9 +91,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 #custom context_processor
                 'store.context_processors.count',
+                'store.context_processors.custom_admin_context'
             ],
             'loaders': [
-                'admin_tools.template_loaders.Loader',  # Make sure this is at the beginning
+                'admin_tools.template_loaders.Loader',  
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
             ],

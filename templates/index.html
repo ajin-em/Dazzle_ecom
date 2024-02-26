@@ -34,7 +34,6 @@
 </header><!-- sect-heading -->
 
 <div class="container-fluid">
-
     <div class="row">
         {% for item in products_with_first_variants %}
         <div class="col-12 d-flex justify-content-center align-items-center col-md-2">
@@ -46,7 +45,8 @@
                 </a> 
                 
                 <div class="card-body">
-                    <h5 class="card-title">{{ item.product.name }}</h5>
+                    <h5 class="card-title">{{ item.product.name }}</h5> 
+
                     <p class="card-text">
                         
                         {% if item.first_variant.actual_price == item.first_variant.selling_price %}

@@ -137,7 +137,7 @@
         <select name="interval" id="interval" onchange="submitForm()" class='pr-2 right-6'>
             <option value="daily" {% if interval == 'daily' %}selected{% endif %}>Daily</option>
             <option value="monthly" {% if interval == 'monthly' %}selected{% endif %}>Monthly</option>
-            <option value="yearly" {% if interval == 'yearly' %}selected{% endif %}>Yearly</option> <!-- Changed to "Yearly" -->
+            <option value="yearly" {% if interval == 'yearly' %}selected{% endif %}>Yearly</option> 
         </select>
 
     </form>
@@ -150,13 +150,13 @@
 </script>
 
 
-<div class="col-span-12 mt-5">
+{% comment %} <div class="col-span-12 mt-5">
     <div class="mt-1 text-base text-gray-600">Total Revenue</div>
         <div id="chart-container" style="width: 80%; margin: 0 auto;">
         <canvas id="sales-chart"></canvas>
         </div>
-    </div>
-</div>
+    </div> 
+</div> {% endcomment %}
 
 <div class="col-span-12 mt-5">
    
@@ -171,62 +171,6 @@
     
     
  
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    var chartData = [10,48,99,87];
-    var ctxSales = document.getElementById('productSalesChart').getContext('2d');
-    var chartSales = new Chart(ctxSales, {
-        type: 'bar',
-        data: {
-            labels: chartData.product_names,
-            datasets: [
-                {
-                    label: 'Total Sales',
-                    data: chartData.total_sales,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                }
-            }
-        }
-    });
-    
-    var ctxPrice = document.getElementById('productPriceChart').getContext('2d');
-    var chartPrice = new Chart(ctxPrice, {
-        type: 'bar',  // You can use 'bar' or 'line' as needed
-        data: {
-            labels: chartData.product_names,
-            datasets: [
-                {
-                    label: 'Total Price',
-                    data: chartData.total_price,
-                    backgroundColor: 'rgba(192, 75, 75, 0.2)',
-                    borderColor: 'rgba(192, 75, 75, 1)',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                }
-            }
-        }
-    });
-</script>
-                </div>
-            </div>
-        </main>
-    </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     var chartData = {{ chart_data|safe }};
@@ -256,7 +200,7 @@
     
     var ctxPrice = document.getElementById('productPriceChart').getContext('2d');
     var chartPrice = new Chart(ctxPrice, {
-        type: 'bar',  // You can use 'bar' or 'line' as needed
+        type: 'bar',
         data: {
             labels: chartData.product_names,
             datasets: [
@@ -285,7 +229,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    <script>
+    {% comment %} <script>
     var ctx = document.getElementById('sales-chart').getContext('2d');
     var chartData = {{ chart_data|safe }};
 
@@ -341,7 +285,7 @@
             }
         }
     });
-</script>
+</script> {% endcomment %}
 
     <script>
         function data() {
