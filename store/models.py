@@ -252,6 +252,7 @@ class Coupon(models.Model):
     - updated_at (DateTimeField): Date and time when the coupon was last updated.
     - minimum_amount (PositiveIntegerField): Minimum purchase amount required for the coupon to be valid.
     """
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     coupon_code = models.CharField(max_length=200, null=True, blank=True)
     description = models.CharField(max_length=200, null=True, blank=True)
