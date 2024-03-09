@@ -195,30 +195,62 @@ class ProductDetailView(View):
     Methods:
         get(request, pslug, vslug): Renders the product detail page based on the product's slug and variant's slug.
     """
+    # def get(self, request, pslug, vslug):
+    #     product = get_object_or_404(Product, slug=pslug)
+    #     variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
+    #     is_in_cart = CartItem.objects.filter(product_variant=variant,cart__user=request.user).exists()
+    #     try:
+    #         variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=variant).exists()
+    #     except:
+    #         variant.is_in_wishlist = False
+    #     offer_price = 0
+    #     offer_percent = 0
+    #     try:
+    #         offer = Offer.objects.filter(product=variant.product).first()
+    #         offer_percent = offer.offer_percentage
+    #         offer_price = int(variant.selling_price - (variant.selling_price * (offer_percent / 100)))
+           
+    #     except:
+    #         pass
+        
+
+    #     context = {
+    #         'variant': variant,
+    #         'is_in_cart': is_in_cart,
+    #         'offer_price': offer_price,
+    #         'offer_percent':offer_percent,
+    #     }
+    #     return render(request, "product_detail.html", context)
+
     def get(self, request, pslug, vslug):
         product = get_object_or_404(Product, slug=pslug)
         variant = Product_Variant.objects.filter(product=product, slug=vslug).select_related('product').first()
-        is_in_cart = CartItem.objects.filter(product_variant=variant,cart__user=request.user).exists()
-        try:
-            variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=variant).exists()
-        except:
-            variant.is_in_wishlist = False
+
+        is_in_cart = False
+        variant.is_in_wishlist = False
+
+        if request.user.is_authenticated:
+            is_in_cart = CartItem.objects.filter(product_variant=variant, cart__user=request.user).exists()
+            try:
+                variant.is_in_wishlist = WishItem.objects.filter(wish__user=request.user, product_variant=variant).exists()
+            except:
+                pass
+        
         offer_price = 0
         offer_percent = 0
+
         try:
             offer = Offer.objects.filter(product=variant.product).first()
             offer_percent = offer.offer_percentage
             offer_price = int(variant.selling_price - (variant.selling_price * (offer_percent / 100)))
-           
         except:
             pass
-        
 
         context = {
             'variant': variant,
             'is_in_cart': is_in_cart,
             'offer_price': offer_price,
-            'offer_percent':offer_percent,
+            'offer_percent': offer_percent,
         }
         return render(request, "product_detail.html", context)
 
