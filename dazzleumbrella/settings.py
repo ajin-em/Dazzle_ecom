@@ -200,7 +200,7 @@ JAZZMIN_SETTINGS = {
     "site_title": "DAZZLE Admin",
     'site_header': 'DAZZLE',
     "site_brand": "Dazzle",
-    # 'site_logo': '/images/logo.png',
+    'site_logo': '/images/logo.png',
     'copyright':'dazzle_umbrella.shop.com',
 }
 # JAZZMIN_SETTINGS["show_ui_builder"] = True
