@@ -66,7 +66,8 @@ class CreateUser(View):
             messages.warning(request, "Email already registered, please use a different email")
             return redirect('register')
         otp = str(random.randint(100000, 999999))
-        account_verification_email.delay(email, otp)
+        # account_verification_email.delay(email, otp)
+        account_verification_email(email, otp)
         request.session['signup_data'] = {'username':username,'email': email,'password': password, 'otp': otp}
 
         messages.success(request, "OTP send to your mail.")
@@ -120,7 +121,8 @@ class ResendOTP(View):
             email = signup_data.get('email')
             username = signup_data.get('username')
             otp = str(random.randint(100000, 999999))
-            account_verification_email.delay(email, otp)
+            # account_verification_email.delay(email, otp)
+            account_verification_email(email, otp)
             signup_data['otp'] = otp
             # print(signup_data)
             return redirect('verify_otp')

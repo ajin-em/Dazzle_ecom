@@ -35,7 +35,7 @@ DEBUG = True
 #     'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
 # }
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','3.109.166.213']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
 
 
 AUTH_USER_MODEL = 'core.CustomUser'
@@ -187,12 +187,12 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
 
 # CELERY SETTINGS
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_ACCEPT_CONTENT = {'application/json'}
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Kolkata'
-CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+# CELERY_ACCEPT_CONTENT = {'application/json'}
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'Asia/Kolkata'
+# CELERY_RESULT_BACKEND = 'django-db'
 
 #custom admin interface
 
