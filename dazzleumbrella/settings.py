@@ -35,7 +35,7 @@ DEBUG = True
 #     'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
 # }
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '3.109.166.213']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '3.109.166.213','www.dazzleumbrella.shop']
 
 
 AUTH_USER_MODEL = 'core.CustomUser'
