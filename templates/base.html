@@ -276,7 +276,7 @@ color: red;
                 <!--Grid row-->
                 <div class="row">
                     <div class="col-12 mx-auto mt-3">
-                        <h6 class="text-uppercase mb-4 font-weight-bold">Quick Links</h6>
+                        {% comment %} <h6 class="text-uppercase mb-4 font-weight-bold">Quick Links</h6> {% endcomment %}
                         {% comment %} <ul class="list-inline">
                             <a href="{% url 'home' %}" ><li class="list-inline-item text-light">Home</li></a>
                             <a href=""><li class="list-inline-item text-light">Refund Policy</li></a>
@@ -297,14 +297,16 @@ color: red;
   
         <!-- Copyright -->
         <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
-            © 2023 Copyright:
-            <a class="text-white" href="https://github.com/ajin-em">github</a>
+            © 2024 Copyright:
+            <a class="text-white" href="https://github.com/ajin-em"><i class="fa-brands fa-github"></i> Ajin E M</a>
         </div>
         <!-- Copyright -->
     </footer>
     <!-- Footer -->
 </div> <!-- End of container -->
 <!-- ========================= FOOTER END // ========================= -->
+<script src="https://kit.fontawesome.com/c187aa525a.js" crossorigin="anonymous"></script>
+
 <script>
     function category(type) {
         let baseUrl = window.location.origin + '/store';
