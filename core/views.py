@@ -93,7 +93,7 @@ class VerifyOTP(View):
         signup_data =  request.session.get('signup_data',{})
         if not signup_data:
             messages.error(request, 'OTP expired or invalid')
-            return redirect('signin')
+            return redirect('register')
         otp = signup_data.get('otp')
         username = signup_data.get('username')
         email = signup_data.get('email')
@@ -104,7 +104,7 @@ class VerifyOTP(View):
             return redirect('verify_otp')
         user = CustomUser.objects.create_user(username=username, email=email, password=password)
         user.save()
-        messages.success(request, 'Registration successful. You can now sign in.')
+        # messages.success(request, 'Registration successful. You can now sign in.')
         del request.session['signup_data']
         return redirect('signin')
 
