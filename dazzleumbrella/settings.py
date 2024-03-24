@@ -203,7 +203,7 @@ JAZZMIN_SETTINGS = {
     'site_header': 'DAZZLE',
     "site_brand": "Dazzle",
     'site_logo': '/images/logo.png',
-    'copyright':'dazzle_umbrella.shop.com',
+    'copyright':'https://github.com/ajin-em',
 }
 # JAZZMIN_SETTINGS["show_ui_builder"] = True
 
