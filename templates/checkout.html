@@ -434,10 +434,10 @@
                 </select>
 
                 <label for="first_name">First Name</label>
-                <input type="text" name="first_name" id="first_name" class="form-control mb-2" required>
+                <input type="text" pattern="[^\d]*" name="first_name" id="first_name" class="form-control mb-2" required>
 
                 <label for="last_name">Last Name</label>
-                <input type="text" name="last_name" id="last_name" class="form-control mb-2" required>
+                <input type="text" pattern="[^\d]*" name="last_name" id="last_name" class="form-control mb-2" required>
 
                 <label for="gender">Gender</label>
                 <select name="gender" id="gender" class="form-select mb-2">
@@ -446,7 +446,7 @@
                 </select>
 
                 <label for="mobile">Mobile</label>
-                <input type="text" name="mobile" id="mobile" class="form-control mb-2" required>
+                <input type="number" name="mobile" id="mobile" class="form-control mb-2" required>
 
                 <label for="email">Email</label>
                 <input type="email" name="email" id="email" class="form-control mb-2" required>
@@ -461,7 +461,7 @@
                 <input type="text" name="landmark" id="landmark" class="form-control mb-2" required>
 
                 <label for="addpincode">Pincode</label>
-                <input type="text" name="pincode" id="addpincode" class="form-control mb-2"
+                <input type="number" name="pincode" id="addpincode" class="form-control mb-2"
                   onkeyup="fetchPincodeData(this,'addpinhelp','addpostoffice','adddistrict','addstate')"
                   aria-describedby="addpinhelp" required>
                 <div id="addpinhelp" class="form-text text-danger"></div>

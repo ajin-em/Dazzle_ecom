@@ -123,7 +123,7 @@
                         <option value="Mrs" {% if address.gender == 'Mrs' %}selected{% endif %}>Female</option>
                       </select>
                       <label for="mobile">Mobile</label>
-                      <input type="text" name="mobile" id="mobile" class="form-control mb-2" required value="{{ address.mobile }}">
+                      <input type="number" name="mobile" id="mobile" class="form-control mb-2" required value="{{ address.mobile }}">
                       <label for="address">Address</label>
                       <textarea name="address" id="address" class="form-control mb-2" rows="3">{{ address.address }}</textarea>
                       <label for="place">Place</label>
@@ -131,7 +131,7 @@
                       <label for="landmark">Land Mark</label>
                       <input type="text" name="landmark" id="landmark" class="form-control mb-2" required value="{{ address.landmark }}">
                       <label for="addpincode">Pincode</label>
-                      <input type="text" name="pincode" id="addpincode" class="form-control mb-2" onkeyup="fetchPincodeData(this,'updatepinhelp{{forloop.counter}}','updatepostoffice{{forloop.counter}}','updatedistrict{{forloop.counter}}','updatestate{{forloop.counter}}')" aria-describedby="updatepinhelp{{forloop.counter}}" required value="{{ address.pincode }}">
+                      <input type="number" name="pincode" id="addpincode" class="form-control mb-2" onkeyup="fetchPincodeData(this,'updatepinhelp{{forloop.counter}}','updatepostoffice{{forloop.counter}}','updatedistrict{{forloop.counter}}','updatestate{{forloop.counter}}')" aria-describedby="updatepinhelp{{forloop.counter}}" required value="{{ address.pincode }}">
                       <div id="updatepinhelp{{forloop.counter}}" class="form-text text-danger"></div>
                       <label for="updatepostoffice">Post Office</label>
                       <select class="form-select" name="post" id="updatepostoffice{{forloop.counter}}">
@@ -171,9 +171,9 @@
                       </select>
                       
                       <label for="first_name">First Name</label>
-                      <input type="text" name="first_name" id="name" class="form-control mb-2" required>
+                      <input type="text" pattern="[^\d]*" name="first_name" id="name" class="form-control mb-2" required>
                       <label for="last_name">Last Name</label>
-                      <input type="text" name="last_name" id="name" class="form-control mb-2" required>
+                      <input type="text" pattern="[^\d]*" name="last_name" id="name" class="form-control mb-2" required>
                       
                       <label for="gender">Gender</label>
                       <select name="gender" id="gender" class="form-select mb-2">
@@ -182,7 +182,7 @@
                       </select>
                       
                       <label for="mobile">Mobile</label>
-                      <input type="text" name="mobile" id="mobile" class="form-control mb-2" required>
+                      <input type="number" name="mobile" id="mobile" class="form-control mb-2" required>
           
           
                       <label for="email">Email</label>
@@ -199,7 +199,7 @@
           
           
                       <label for="addpincode">Pincode</label>
-                      <input type="text" name="pincode" id="addpincode" class="form-control mb-2" onkeyup="fetchPincodeData(this,'addpinhelp','addpostoffice','adddistrict','addstate')" aria-describedby="addpinhelp" required>
+                      <input type="number" name="pincode" id="addpincode" class="form-control mb-2" onkeyup="fetchPincodeData(this,'addpinhelp','addpostoffice','adddistrict','addstate')" aria-describedby="addpinhelp" required>
                       <div id="addpinhelp" class="form-text text-danger"></div>
           
           
